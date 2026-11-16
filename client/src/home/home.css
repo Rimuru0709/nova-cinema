@@ -2336,6 +2336,43 @@ div {
     }
 }
 
+.catalog-state .button {
+    margin-top: 24px;
+}
+
+.booking-status {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 14px 4px 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.booking-status:empty {
+    display: none;
+}
+
+.booking-status .text-link {
+    padding: 0;
+    color: var(--gold);
+    background: transparent;
+}
+
+.data-message {
+    padding: 28px 0;
+    color: var(--muted);
+    line-height: 1.7;
+}
+
+.button:disabled,
+.booking-field select:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
 /* Giảm chuyển động theo thiết lập thiết bị */
 
 @media (prefers-reduced-motion: reduce) {
