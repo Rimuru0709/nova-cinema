@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "concurrently -k -n api,web \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
+    "db:check": "npm --prefix server run db:check",
+    "db:import": "npm --prefix server run db:import",
+    "build": "npm --prefix client run build",
+    "lint": "npm --prefix client run lint"
   },
   "keywords": [],
   "author": "",

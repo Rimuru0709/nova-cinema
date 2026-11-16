@@ -120,7 +120,7 @@ export default function Home() {
     heroMovies,
 
     getToday,
-    getFutureDate,
+    formatDate,
     trailerUrl,
     hideBrokenImage,
 
@@ -148,6 +148,12 @@ export default function Home() {
 
     featuredMovie,
     visibleMovies,
+    catalogLoading,
+    catalogError,
+    retryCatalog,
+    showtimesLoading,
+    showtimesError,
+    retryShowtimes,
 
     closeMenu,
     chooseMovie,
@@ -287,9 +293,9 @@ export default function Home() {
             className="hero-background"
             style={{
               backgroundImage: `url("${
-                featuredMovie.id === "dune"
+                featuredMovie?.id === "dune"
                   ? HERO_IMAGE
-                  : featuredMovie.image
+                  : featuredMovie?.image || HERO_IMAGE
               }")`,
             }}
           />
@@ -298,6 +304,8 @@ export default function Home() {
 
           <div className="container hero-inner">
             <div className="hero-content">
+              {featuredMovie ? (
+                <>
               <div className="hero-badges">
                 <span className="badge badge-gold">
                   <Gem size={13} />
@@ -306,7 +314,7 @@ export default function Home() {
 
                 <span className="badge badge-dark">
                   <Monitor size={13} />
-                  Độc quyền IMAX Laser
+                  {featuredMovie.format}
                 </span>
 
                 <span className="badge badge-dark">
@@ -334,7 +342,7 @@ export default function Home() {
 
                 <a
                   className="button button-glass"
-                  href={trailerUrl(featuredMovie.title)}
+                  href={featuredMovie.trailerUrl || trailerUrl(featuredMovie.title)}
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -360,6 +368,19 @@ export default function Home() {
                   </button>
                 ))}
               </div>
+                </>
+              ) : (
+                <div className="catalog-state" role={catalogError ? "alert" : "status"}>
+                  <p className="eyebrow">NOVA CINEMA</p>
+                  <h1>{catalogLoading ? "Đang tải phim…" : catalogError ? "Chưa tải được danh sách phim" : "Hẹn bạn tại NOVA Cinema"}</h1>
+                  <p className="hero-description">
+                    {catalogLoading ? "Vui lòng chờ trong giây lát." : catalogError || "Các bộ phim đang được cập nhật. Vui lòng quay lại sau."}
+                  </p>
+                  {!catalogLoading && (
+                    <button className="button button-gold" type="button" onClick={retryCatalog}>Tải lại danh sách phim</button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -375,10 +396,12 @@ export default function Home() {
 
               <select
                 value={selectedMovieId}
+                disabled={catalogLoading || !movies.length}
                 onChange={(event) =>
                   setSelectedMovieId(event.target.value)
                 }
               >
+                {!movies.length && <option value="">Chưa có phim</option>}
                 {movies.map((movie) => (
                   <option key={movie.id} value={movie.id}>
                     {movie.shortTitle}
@@ -395,11 +418,13 @@ export default function Home() {
 
               <select
                 value={cinema}
+                disabled={catalogLoading || !cinemas.length}
                 onChange={(event) => setCinema(event.target.value)}
               >
+                {!cinemas.length && <option value="">Chưa có rạp</option>}
                 {cinemas.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
+                  <option key={item.id} value={String(item.id)}>
+                    {item.name}
                   </option>
                 ))}
               </select>
@@ -428,11 +453,13 @@ export default function Home() {
 
               <select
                 value={time}
+                disabled={showtimesLoading || !showtimes.length}
                 onChange={(event) => setTime(event.target.value)}
               >
+                {!showtimes.length && <option value="">{showtimesLoading ? "Đang tải suất chiếu…" : "Chưa có suất chiếu"}</option>}
                 {showtimes.map((item) => (
-                  <option key={item} value={item}>
-                    {item} · IMAX 01
+                  <option key={item.id} value={String(item.id)}>
+                    {item.time} · {item.roomName} · {item.format}
                   </option>
                 ))}
               </select>
@@ -441,11 +468,20 @@ export default function Home() {
             <button
               className="button button-gold booking-submit"
               type="submit"
+              disabled={!time || showtimesLoading || Boolean(showtimesError)}
             >
               CHỌN SUẤT
               <ArrowRight size={17} />
             </button>
           </form>
+          <div className="booking-status" aria-live="polite">
+            {showtimesError ? (
+              <>
+                <span>{showtimesError}</span>
+                <button type="button" className="text-link" onClick={retryShowtimes}>Thử lại</button>
+              </>
+            ) : showtimesLoading ? "Đang tải lịch chiếu…" : selectedMovieId && cinema && date && !showtimes.length ? "Không có suất chiếu còn mở cho lựa chọn này. Bạn có thể chọn ngày, rạp hoặc phim khác." : null}
+          </div>
         </div>
 
         {/* PHIM ĐANG CHIẾU */}
@@ -487,7 +523,14 @@ export default function Home() {
               </div>
             )}
 
-            {visibleMovies.length > 0 ? (
+            {catalogLoading ? (
+              <p className="data-message" role="status">Đang tải danh sách phim…</p>
+            ) : catalogError ? (
+              <div className="empty-state">
+                <p>{catalogError}</p>
+                <button className="button button-gold" type="button" onClick={retryCatalog}>Thử lại</button>
+              </div>
+            ) : visibleMovies.length > 0 ? (
               <div className="movie-grid">
                 {visibleMovies.map((movie) => (
                   <article className="movie-card" key={movie.id}>
@@ -560,9 +603,9 @@ export default function Home() {
               <div className="empty-state">
                 <Search size={32} />
 
-                <h3>Chưa tìm thấy phim phù hợp</h3>
+                <h3>{movies.length ? "Chưa tìm thấy phim phù hợp" : "Chưa có phim đang chiếu"}</h3>
 
-                <p>Thử đổi từ khóa hoặc chọn một nhóm phim khác.</p>
+                <p>{movies.length ? "Thử đổi từ khóa hoặc chọn một nhóm phim khác." : "Danh sách phim sẽ được cập nhật sớm."}</p>
 
                 <button
                   className="button button-gold"
@@ -616,11 +659,11 @@ export default function Home() {
 
                       <span className="countdown-badge">
                         <Clock size={13} />
-                        Lịch mẫu: còn {movie.days} ngày
+                        Sắp khởi chiếu
                       </span>
 
                       <span className="release-date">
-                        {getFutureDate(movie.days)}
+                        {formatDate(movie.releaseDate)}
                       </span>
                     </div>
 
@@ -653,7 +696,7 @@ export default function Home() {
 
                         <a
                           className="icon-button"
-                          href={trailerUrl(movie.title)}
+                          href={movie.trailerUrl || trailerUrl(movie.title)}
                           target="_blank"
                           rel="noreferrer"
                           aria-label={`Tìm trailer ${movie.title}`}
@@ -666,6 +709,9 @@ export default function Home() {
                 );
               })}
             </div>
+            {!catalogLoading && !catalogError && !upcomingMovies.length && (
+              <p className="data-message">Chưa có phim sắp chiếu. Vui lòng quay lại sau.</p>
+            )}
           </div>
         </section>
 
@@ -863,20 +909,13 @@ export default function Home() {
             <div className="footer-column">
               <h3>HỆ THỐNG CỤM RẠP</h3>
 
-              <div className="cinema-address">
-                <strong>NOVA Landmark 81</strong>
-                <span>Bình Thạnh, TP. Hồ Chí Minh</span>
-              </div>
-
-              <div className="cinema-address">
-                <strong>NOVA Westlake</strong>
-                <span>Tây Hồ, Hà Nội</span>
-              </div>
-
-              <div className="cinema-address">
-                <strong>NOVA Vincom Bà Triệu</strong>
-                <span>Hai Bà Trưng, Hà Nội</span>
-              </div>
+              {cinemas.map((item) => (
+                <div className="cinema-address" key={item.id}>
+                  <strong>{item.name}</strong>
+                  <span>{item.address}</span>
+                </div>
+              ))}
+              {!cinemas.length && <span className="muted">Thông tin rạp đang được cập nhật.</span>}
             </div>
 
             <div className="footer-column">
