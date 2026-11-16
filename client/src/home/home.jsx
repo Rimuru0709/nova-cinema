@@ -22,21 +22,33 @@ import {
   Gift,
   CreditCard,
   Check,
+  Sparkles,
+  ShieldCheck,
+  Tag,
+  ExternalLink,
+  BadgeCheck,
+  Wallet,
+  QrCode,
+  Volume2,
 } from "lucide-react";
 
 import useHome from "./useHome.jsx";
 import "./home.css";
 
-// Logo
-function Brand() {
+// Logo Nova Cinema
+function Brand({ className = "" }) {
   return (
     <a
-      className="brand"
+      className={`brand ${className}`}
       href="#trang-chu"
       aria-label="Nova Cinema trang chủ"
     >
       <span className="brand-symbol">
-        <Clapperboard size={25} />
+        <img
+          src="/nova-icon.png"
+          alt="Nova Cinema Logo"
+          className="brand-icon-img"
+        />
       </span>
 
       <span className="brand-text">
@@ -121,6 +133,8 @@ export default function Home() {
 
     getToday,
     formatDate,
+    formatReviewCount,
+    getDaysUntil,
     trailerUrl,
     hideBrokenImage,
 
@@ -307,66 +321,72 @@ export default function Home() {
               {featuredMovie ? (
                 <>
               <div className="hero-badges">
-                <span className="badge badge-gold">
-                  <Gem size={13} />
-                  ĐIỆN ẢNH ĐỈNH CAO
+                <span className="badge badge-gold badge-pill">
+                  <Star size={12} fill="currentColor" />
+                  KHỞI CHIẾU HÔM NAY
                 </span>
 
-                <span className="badge badge-dark">
-                  <Monitor size={13} />
-                  {featuredMovie.format}
+                <span className="badge badge-dark badge-pill">
+                  <Monitor size={12} />
+                  {featuredMovie.imax ? "Độc quyền IMAX Laser" : featuredMovie.format || "Độc quyền IMAX Laser"}
                 </span>
 
-                <span className="badge badge-dark">
-                  {featuredMovie.age} · {featuredMovie.duration} phút
+                <span className="badge badge-dark badge-pill">
+                  <Volume2 size={12} />
+                  Âm thanh Dolby Atmos
+                </span>
+
+                <span className="badge badge-dark badge-pill">
+                  {featuredMovie.age} • {featuredMovie.duration} phút
                 </span>
               </div>
 
-              <p className="eyebrow">SIÊU PHẨM TRÊN MÀN ẢNH RỘNG</p>
+              <p className="eyebrow hero-eyebrow">SIÊU PHẨM MÀN ẢNH RỘNG 2026</p>
 
-              <h1>{featuredMovie.title}</h1>
+              <h1 className="hero-title">{featuredMovie.title}</h1>
 
               <p className="hero-description">
                 {featuredMovie.description}
               </p>
 
-              <div className="hero-buttons">
+              <div className="hero-action-row">
                 <button
-                  className="button button-gold"
+                  className="hero-cta-btn"
                   type="button"
                   onClick={() => chooseMovie(featuredMovie)}
                 >
-                  <Ticket size={18} />
-                  ĐẶT VÉ NGAY
+                  <Ticket size={15} />
+                  <span>ĐẶT VÉ NGAY</span>
                 </button>
 
                 <a
-                  className="button button-glass"
+                  className="hero-trailer-btn"
                   href={featuredMovie.trailerUrl || trailerUrl(featuredMovie.title)}
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <Play size={17} />
-                  Xem trailer
+                  <span className="trailer-play-circle">
+                    <Play size={9} fill="#0b1e33" color="#0b1e33" className="play-triangle" />
+                  </span>
+                  <span>Xem Trailer</span>
                 </a>
-              </div>
 
-              <div
-                className="hero-pagination"
-                aria-label="Chọn banner phim"
-              >
-                {heroMovies.map((movie, index) => (
-                  <button
-                    key={movie.id}
-                    type="button"
-                    className={heroIndex === index ? "is-active" : ""}
-                    aria-pressed={heroIndex === index}
-                    onClick={() => setHeroIndex(index)}
-                  >
-                    <span>0{index + 1}</span>
-                    {movie.shortTitle}
-                  </button>
-                ))}
+                <div
+                  className="hero-pagination-capsule"
+                  aria-label="Chọn banner phim"
+                >
+                  {heroMovies.map((movie, index) => (
+                    <button
+                      key={movie.id}
+                      type="button"
+                      className={`hero-capsule-item ${heroIndex === index ? "is-active" : ""}`}
+                      aria-pressed={heroIndex === index}
+                      onClick={() => setHeroIndex(index)}
+                    >
+                      0{index + 1} • {movie.shortTitle || movie.title}
+                    </button>
+                  ))}
+                </div>
               </div>
                 </>
               ) : (
@@ -389,9 +409,9 @@ export default function Home() {
         <div className="container booking-wrapper" id="dat-ve">
           <form className="quick-booking" onSubmit={previewBooking}>
             <label className="booking-field">
-              <span>
-                <Clapperboard size={15} />
-                PHIM
+              <span className="booking-label">
+                <Clapperboard size={14} />
+                1. CHỌN PHIM
               </span>
 
               <select
@@ -404,16 +424,16 @@ export default function Home() {
                 {!movies.length && <option value="">Chưa có phim</option>}
                 {movies.map((movie) => (
                   <option key={movie.id} value={movie.id}>
-                    {movie.shortTitle}
+                    {movie.title}
                   </option>
                 ))}
               </select>
             </label>
 
             <label className="booking-field">
-              <span>
-                <MapPin size={15} />
-                CỤM RẠP
+              <span className="booking-label">
+                <MapPin size={14} />
+                2. CHỌN CỤM RẠP
               </span>
 
               <select
@@ -424,31 +444,37 @@ export default function Home() {
                 {!cinemas.length && <option value="">Chưa có rạp</option>}
                 {cinemas.map((item) => (
                   <option key={item.id} value={String(item.id)}>
-                    {item.name}
+                    {item.name} ({item.id === 1 ? "TP. HCM" : "Hà Nội"})
                   </option>
                 ))}
               </select>
             </label>
 
             <label className="booking-field">
-              <span>
-                <CalendarDays size={15} />
-                NGÀY CHIẾU
+              <span className="booking-label">
+                <CalendarDays size={14} />
+                3. CHỌN NGÀY CHIẾU
               </span>
 
-              <input
-                type="date"
-                min={getToday()}
-                value={date}
-                onChange={(event) => setDate(event.target.value)}
-                required
-              />
+              <div className="booking-date-container">
+                <span className="booking-date-text">
+                  {date === getToday() ? `Hôm nay • ${formatDate(date)}` : formatDate(date)}
+                </span>
+                <input
+                  type="date"
+                  min={getToday()}
+                  value={date}
+                  onChange={(event) => setDate(event.target.value)}
+                  required
+                  className="booking-date-hidden"
+                />
+              </div>
             </label>
 
             <label className="booking-field">
-              <span>
-                <Clock size={15} />
-                SUẤT CHIẾU
+              <span className="booking-label">
+                <Clock size={14} />
+                4. CHỌN SUẤT CHIẾU
               </span>
 
               <select
@@ -459,18 +485,18 @@ export default function Home() {
                 {!showtimes.length && <option value="">{showtimesLoading ? "Đang tải suất chiếu…" : "Chưa có suất chiếu"}</option>}
                 {showtimes.map((item) => (
                   <option key={item.id} value={String(item.id)}>
-                    {item.time} · {item.roomName} · {item.format}
+                    {item.time} • {item.format || 'IMAX'} {item.roomName}
                   </option>
                 ))}
               </select>
             </label>
 
             <button
-              className="button button-gold booking-submit"
+              className="button button-gold booking-submit-btn"
               type="submit"
               disabled={!time || showtimesLoading || Boolean(showtimesError)}
             >
-              CHỌN SUẤT
+              MUA VÉ NGAY
               <ArrowRight size={17} />
             </button>
           </form>
@@ -548,7 +574,13 @@ export default function Home() {
 
                       <span
                         className={`age-badge ${
-                          movie.age === "T18" ? "age-red" : ""
+                          movie.age === "T18"
+                            ? "age-red"
+                            : movie.age === "T16"
+                            ? "age-gold"
+                            : movie.age === "T13"
+                            ? "age-orange"
+                            : "age-green"
                         }`}
                       >
                         {movie.age}
@@ -560,8 +592,8 @@ export default function Home() {
 
                       <div className="rating-badge">
                         <Star size={13} fill="currentColor" />
-                        <strong>{movie.rating}</strong>
-                        <span>({movie.reviews})</span>
+                        <strong>{movie.rating ? Number(movie.rating).toFixed(1) : "9.0"}</strong>
+                        <span>({formatReviewCount(movie.reviews)})</span>
                       </div>
                     </div>
 
@@ -631,21 +663,22 @@ export default function Home() {
             <div className="section-heading">
               <div>
                 <p className="eyebrow">
-                  LÊN LỊCH CHO TRẢI NGHIỆM TIẾP THEO
+                  LỊCH RA MẮT SẮP TỚI
                 </p>
 
                 <h2>Phim Sắp Khởi Chiếu</h2>
               </div>
 
-              <span className="text-link">
-                Những câu chuyện đáng mong chờ
+              <a href="#phim-sap-chieu" className="text-link">
+                Xem tất cả phim sắp chiếu
                 <ArrowRight size={16} />
-              </span>
+              </a>
             </div>
 
             <div className="upcoming-grid">
               {upcomingMovies.map((movie) => {
                 const interested = interestedMovies.includes(movie.id);
+                const daysLeft = getDaysUntil(movie.releaseDate);
 
                 return (
                   <article className="upcoming-card" key={movie.id}>
@@ -659,7 +692,7 @@ export default function Home() {
 
                       <span className="countdown-badge">
                         <Clock size={13} />
-                        Sắp khởi chiếu
+                        {daysLeft ? `Khởi chiếu sau ${String(daysLeft).padStart(2, "0")} ngày` : "Sắp khởi chiếu"}
                       </span>
 
                       <span className="release-date">
@@ -691,7 +724,7 @@ export default function Home() {
                             <Bell size={15} />
                           )}
 
-                          {interested ? "Đã theo dõi" : "Theo dõi phim"}
+                          {interested ? "Đã theo dõi" : "Nhận thông báo"}
                         </button>
 
                         <a
@@ -723,16 +756,16 @@ export default function Home() {
           <div className="container">
             <div className="section-intro">
               <p className="eyebrow">
-                <Gem size={14} />
+                <Sparkles size={14} />
                 ĐẲNG CẤP ĐIỆN ẢNH VƯỢT TRỘI
               </p>
 
               <h2>Trải Nghiệm Thượng Lưu Tại NOVA Cinema</h2>
 
               <p>
-                Mỗi suất chiếu là một hành trình thưởng thức nghệ thuật
-                đỉnh cao, nơi công nghệ tiên tiến kết hợp cùng không
-                gian và dịch vụ đầy tinh tế.
+                Mỗi suất chiếu tại NOVA Cinema là một hành trình thưởng thức nghệ thuật
+                đỉnh cao, nơi công nghệ tối tân hòa cùng phong cách phục vụ chuẩn khách
+                sạn 5 sao.
               </p>
             </div>
 
@@ -775,38 +808,37 @@ export default function Home() {
               <div className="membership-copy">
                 <div className="membership-topline">
                   <span className="badge badge-gold">
-                    ĐẶC QUYỀN HỘI VIÊN
+                    ĐẶC QUYỀN HỘI VIÊN 2026
                   </span>
 
                   <span>NOVA Elite Membership</span>
                 </div>
 
                 <h2>
-                  Gia Nhập <span>NOVA Elite Club</span>
-                  <br />
+                  Gia Nhập <span>NOVA Elite Club</span> —<br />
                   Thăng Hạng Phong Cách Điện Ảnh
                 </h2>
 
                 <p>
-                  Khám phá ưu đãi dành cho hội viên, tích điểm cho mỗi
-                  trải nghiệm và tận hưởng những đặc quyền tại NOVA
-                  Cinema.
+                  Tận hưởng ưu đãi đặc quyền giảm 20% khi thanh toán bằng thẻ
+                  Techcombank Priority và Vietcombank Signature. Tích lũy 10%
+                  điểm thưởng cho mỗi giao dịch vé và dịch vụ ẩm thực tại rạp.
                 </p>
 
                 <div className="membership-benefits">
                   <span>
-                    <Ticket size={17} />
-                    Ưu đãi vé xem phim
+                    <Tag size={17} />
+                    Ưu đãi 20% F&B & Vé
                   </span>
 
                   <span>
-                    <Gift size={17} />
-                    Quà tặng hội viên
+                    <Ticket size={17} />
+                    Đổi vé VIP miễn phí
                   </span>
 
                   <span>
                     <Crown size={17} />
-                    Đặc quyền Gold Lounge
+                    Ưu tiên phục vụ Lounge
                   </span>
                 </div>
 
@@ -816,8 +848,7 @@ export default function Home() {
                     className="button button-gold"
                     onClick={showMembership}
                   >
-                    KHÁM PHÁ THÀNH VIÊN VIP
-                    <ArrowRight size={16} />
+                    ĐĂNG KÝ THÀNH VIÊN VIP
                   </button>
 
                   <button
@@ -825,7 +856,7 @@ export default function Home() {
                     className="button button-dark"
                     onClick={showMembership}
                   >
-                    Xem chi tiết ưu đãi
+                    Xem chi tiết ưu đãi hội viên
                   </button>
                 </div>
               </div>
@@ -837,8 +868,8 @@ export default function Home() {
                   </span>
 
                   <div>
-                    <h3>Đối tác thanh toán</h3>
-                    <p>Khám phá chương trình ưu đãi theo kỳ</p>
+                    <h3>Techcombank Priority</h3>
+                    <p>Giảm ngay 20% mỗi cuối tuần + IMAX</p>
                   </div>
 
                   <span className="offer-tag">HOT</span>
@@ -846,12 +877,12 @@ export default function Home() {
 
                 <div className="offer-card">
                   <span className="offer-icon">
-                    <Gift size={22} />
+                    <CreditCard size={22} />
                   </span>
 
                   <div>
-                    <h3>Quà tặng thành viên</h3>
-                    <p>Voucher dành cho trải nghiệm tiếp theo</p>
+                    <h3>Vietcombank Signature</h3>
+                    <p>Mua 1 Tặng 1 Combo bắp nước VIP</p>
                   </div>
 
                   <span className="offer-tag">VOUCHER</span>
@@ -863,11 +894,11 @@ export default function Home() {
                   </span>
 
                   <div>
-                    <h3>Tích điểm NOVA Point</h3>
-                    <p>Đổi điểm để nhận thêm quyền lợi</p>
+                    <h3>Tích Điểm NOVA Point</h3>
+                    <p>1.000 điểm = 01 vé Gold Lounge 2D</p>
                   </div>
 
-                  <span className="offer-tag">QUYỀN LỢI</span>
+                  <span className="offer-tag">QUY ĐỔI</span>
                 </div>
               </div>
             </div>
@@ -880,34 +911,43 @@ export default function Home() {
         <div className="container">
           <div className="footer-grid">
             <div className="footer-brand">
-              <Brand />
+              <div className="footer-brand-header">
+                <span className="footer-brand-symbol">
+                  <img
+                    src="/nova-icon.png"
+                    alt="NOVA CINEMA"
+                    className="footer-brand-img"
+                  />
+                </span>
+                <div className="footer-brand-title">
+                  <span>NOVA</span>
+                  <span>CINEMA</span>
+                </div>
+              </div>
 
               <p>
                 Đẳng cấp điện ảnh thượng lưu. Tận hưởng không gian
-                trình chiếu hiện đại cùng những trải nghiệm đáng nhớ.
+                trình chiếu IMAX Laser, Dolby Atmos chuẩn quốc tế cùng
+                đặc quyền ẩm thực VIP Lounge thượng hạng.
               </p>
 
-              <span className="footer-vip">
-                <Crown size={16} />
-                Chương trình hội viên NOVA Elite
-              </span>
+              <div className="footer-badge">
+                <BadgeCheck size={18} className="footer-badge-icon" />
+                <span>Chứng nhận tiêu chuẩn rạp VIP 2025</span>
+              </div>
             </div>
 
             <div className="footer-column">
-              <h3>KHÁM PHÁ NOVA</h3>
+              <h3>KHÁM PHÁ & ĐIỀU KHOẢN</h3>
 
-              <a href="#phim-dang-chieu">Phim đang chiếu</a>
-              <a href="#phim-sap-chieu">Phim sắp chiếu</a>
-              <a href="#trai-nghiem">Trải nghiệm điện ảnh</a>
-              <a href="#uu-dai">Quyền lợi thành viên</a>
-
-              <button type="button" onClick={showMembership}>
-                Thông tin chương trình
-              </button>
+              <a href="#trang-chu">Về chúng tôi</a>
+              <a href="#uu-dai" onClick={showMembership}>Quy định thành viên VIP</a>
+              <a href="#dieu-khoan" onClick={(e) => { e.preventDefault(); setModal({ title: "Chính sách bảo mật", content: <p>NOVA Cinema cam kết bảo mật tuyệt đối thông tin khách hàng và thông tin thanh toán theo chuẩn quốc tế.</p> }); }}>Chính sách bảo mật</a>
+              <a href="#dieu-khoan" onClick={(e) => { e.preventDefault(); setModal({ title: "Điều khoản dịch vụ", content: <p>Quy định về việc đặt vé, đổi trả vé và sử dụng dịch vụ tại hệ thống rạp NOVA Cinema.</p> }); }}>Điều khoản dịch vụ</a>
             </div>
 
             <div className="footer-column">
-              <h3>HỆ THỐNG CỤM RẠP</h3>
+              <h3>HỆ THỐNG CỤM RẠP NOVA</h3>
 
               {cinemas.map((item) => (
                 <div className="cinema-address" key={item.id}>
@@ -921,36 +961,37 @@ export default function Home() {
             <div className="footer-column">
               <h3>LIÊN HỆ & HỖ TRỢ</h3>
 
-              <p className="footer-contact">
-                <Phone size={16} />
-                Hotline đang cập nhật
-              </p>
+              <div className="footer-contact-item">
+                <Phone size={18} className="footer-contact-icon" />
+                <div className="footer-contact-text">
+                  <span className="contact-label">Hotline Chăm sóc VIP (24/7)</span>
+                  <strong className="contact-phone">1900 6868</strong>
+                </div>
+              </div>
 
-              <p className="footer-contact">
-                <Mail size={16} />
-                Email đang cập nhật
-              </p>
+              <div className="footer-contact-item">
+                <Mail size={18} className="footer-contact-icon" />
+                <span className="contact-value">contact@novacinema.vn</span>
+              </div>
 
-              <p className="footer-contact">
-                <Clock size={16} />
-                08:00 – 24:00 hằng ngày
-              </p>
-
-              <div className="payment-icons">
-                <CreditCard size={25} />
-                <Ticket size={25} />
-                <Crown size={25} />
+              <div className="footer-contact-item">
+                <Clock size={18} className="footer-contact-icon" />
+                <span className="contact-value">08:00 - 24:00 hàng ngày</span>
               </div>
             </div>
           </div>
 
           <div className="footer-bottom">
-            <p>© {new Date().getFullYear()} NOVA CINEMA.</p>
+            <p>© 2025 NOVA CINEMA JSC. All rights reserved. Trải nghiệm điện ảnh chuẩn Hoàng gia.</p>
 
-            <p>
-              Giao diện minh họa. Lịch chiếu, điểm đánh giá, thông tin
-              rạp và ưu đãi là dữ liệu mẫu.
-            </p>
+            <div className="footer-safe-payment">
+              <span>Thanh toán an toàn:</span>
+              <div className="payment-mini-icons">
+                <CreditCard size={18} />
+                <Wallet size={18} />
+                <QrCode size={18} />
+              </div>
+            </div>
           </div>
         </div>
       </footer>

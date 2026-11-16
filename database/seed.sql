@@ -25,7 +25,7 @@ SELECT demo.* FROM (
     'now_showing' AS status, TRUE AS is_visible, 1 AS featured_order
   UNION ALL SELECT 'oppenheimer', 'Oppenheimer', 'Oppenheimer',
     'Chính kịch / Lịch sử', 180, 'T18', 9.4, 8900, 'DOLBY CINEMA', 'international', TRUE,
-    'https://pics.filmaffinity.com/oppenheimer-389531177-large.jpg',
+    '/oppenheimer.jpg',
     'Bước vào câu chuyện của nhà vật lý J. Robert Oppenheimer, nơi những khám phá khoa học đi cùng các lựa chọn làm thay đổi lịch sử.',
     DATE_SUB(CURDATE(), INTERVAL 7 DAY), 'now_showing', TRUE, 2
   UNION ALL SELECT 'mai', 'Mai', 'Mai', 'Tâm lý / Tình cảm',
@@ -60,9 +60,9 @@ WHERE existing.id IS NULL;
 INSERT INTO cinemas (id, name, address)
 SELECT demo.* FROM (
   SELECT 1 AS id, 'NOVA Landmark 81' AS name,
-    'Khu vực Bình Thạnh, TP. Hồ Chí Minh (địa chỉ minh họa)' AS address
-  UNION ALL SELECT 2, 'NOVA Westlake', 'Khu vực Tây Hồ, Hà Nội (địa chỉ minh họa)'
-  UNION ALL SELECT 3, 'NOVA Vincom Bà Triệu', 'Khu vực Hai Bà Trưng, Hà Nội (địa chỉ minh họa)'
+    'Tầng B1, TTTM Vincom Landmark 81, TP. HCM' AS address
+  UNION ALL SELECT 2, 'NOVA Westlake', 'Tầng 4, Lotte Mall West Lake, Tây Hồ, Hà Nội'
+  UNION ALL SELECT 3, 'NOVA Vincom Bà Triệu', 'Tầng 6, Tháp B, 191 Bà Triệu, Hai Bà Trưng, Hà Nội'
 ) AS demo
 LEFT JOIN cinemas existing ON existing.id = demo.id
 WHERE existing.id IS NULL;
