@@ -1,12 +1,60 @@
 import { useEffect, useState } from "react";
 import {
-  Trophy,
-  Monitor,
-  Armchair,
+  Wine,
+  Video,
   Play,
   Clapperboard,
   Check,
 } from "lucide-react";
+import { MOVIES_DATA } from "../movies/movieData.js";
+
+function RecliningSeatIcon(props) {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <rect x="7" y="2" width="5" height="3" rx="1" />
+      <path d="M8 5v9h8" />
+      <path d="M11 10h6a2 2 0 0 1 2 2v2" />
+      <path d="M7 14l-2 5" />
+      <path d="M15 14l2 5" />
+    </svg>
+  );
+}
+
+const DEFAULT_CINEMAS = [
+  { id: 1, name: "NOVA Landmark 81", address: "Tầng B1, TTTM Vincom Landmark 81, TP. HCM" },
+  { id: 2, name: "NOVA Westlake", address: "Tầng 4, Lotte Mall West Lake, Tây Hồ, Hà Nội" },
+  { id: 3, name: "NOVA Vincom Bà Triệu", address: "Tầng 6, Tháp B, 191 Bà Triệu, Hai Bà Trưng, Hà Nội" },
+];
+
+const FALLBACK_MOVIES = MOVIES_DATA.map((m) => ({
+  id: m.id,
+  title: m.title,
+  shortTitle: m.shortTitle,
+  genre: m.genre,
+  duration: m.duration || 120,
+  age: m.age,
+  rating: m.rating,
+  reviews: 4200,
+  format: m.format,
+  country: m.id === "mai" || m.id === "lat-mat-7" ? "vietnam" : "international",
+  imax: Boolean(m.format && m.format.includes("IMAX")),
+  image: m.poster,
+  description: m.description,
+  releaseDate: m.releaseDate,
+  status: m.status,
+  featuredOrder: m.featuredOrder,
+  trailerUrl: m.trailerUrl,
+}));
 
 const API_ORIGIN = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 const HERO_IMAGE =
@@ -15,28 +63,28 @@ const HERO_IMAGE =
 // Nội dung giới thiệu trải nghiệm thượng lưu chuẩn NOVA Cinema
 const experiences = [
   {
-    icon: Trophy,
+    icon: Wine,
     eyebrow: "PRIVATE HOSPITALITY",
     title: "NOVA Gold Lounge",
     description:
-      "Khu vực sảnh đón tiếp sang trọng bậc nhất. Miễn phí cocktail đặc sắc, trà chiều thượng hạng và canapés được chuẩn bị bởi bếp trưởng dành riêng trước giờ chiếu.",
-    note: "Đặc quyền từ VIP & Gold",
+      "Khu vực sảnh đón tiếp sang trọng biệt lập. Miễn phí cocktail đặc sắc, trà chiều thượng hạng và canapés được chuẩn bị bởi bếp trưởng danh tiếng trước giờ chiếu.",
+    note: "Đặc quyền vé VIP & Gold",
   },
   {
-    icon: Monitor,
+    icon: Video,
     eyebrow: "NEXT-GEN PROJECTION",
     title: "Màn hình IMAX Laser 4K",
     description:
-      "Hệ thống chiếu Laser 4K độc quyền mang đến độ sáng vượt trội 60%, độ tương phản sâu thẳm cùng hệ thống dải thanh vòm 12 kênh phát sóng sống động.",
+      "Hệ thống chiếu Laser 4K đôi độc quyền mang đến độ sáng vượt trội 80%, độ tương phản sâu thẳm cùng hệ thống âm thanh vòm 12 kênh phân tầng sống động.",
     note: "Độ phân giải siêu thực",
   },
   {
-    icon: Armchair,
+    icon: RecliningSeatIcon,
     eyebrow: "ULTIMATE COMFORT",
     title: "Ghế Da Cơ Học Ngả Tự Động",
     description:
       "Ghế bọc da bò nhập khẩu Italia, tích hợp hệ thống sưởi và massage êm dịu, bàn sạc không dây cùng nút gọi phục vụ ẩm thực tận chỗ riêng tư.",
-    note: "Phục vụ tận chỗ tại rạp",
+    note: "Phục vụ ẩm thực tại chỗ",
   },
 ];
 
@@ -118,9 +166,9 @@ async function getApiData(path, signal) {
 
 export default function useHome() {
   const [catalog, setCatalog] = useState({
-    status: "loading",
-    movies: [],
-    cinemas: [],
+    status: "ready",
+    movies: FALLBACK_MOVIES,
+    cinemas: DEFAULT_CINEMAS,
     error: "",
   });
   const [catalogVersion, setCatalogVersion] = useState(0);
@@ -151,19 +199,23 @@ export default function useHome() {
           throw new Error("Dữ liệu phim chưa hợp lệ. Vui lòng thử lại.");
         }
         if (!controller.signal.aborted) {
-          setCatalog({ status: "ready", ...data, error: "" });
+          setCatalog({
+            status: "ready",
+            movies: data.movies.length ? data.movies : FALLBACK_MOVIES,
+            cinemas: data.cinemas.length ? data.cinemas : DEFAULT_CINEMAS,
+            error: "",
+          });
         }
       })
-      .catch((error) => {
+      .catch(() => {
         if (!controller.signal.aborted) {
-          setCatalog({
-            status: "error",
-            movies: [],
-            cinemas: [],
-            error: error instanceof TypeError
-              ? "Không thể kết nối để tải phim. Vui lòng thử lại."
-              : error.message,
-          });
+          // Khi không có kết nối API, tự động dùng fallback data mượt mà
+          setCatalog((prev) => ({
+            status: "ready",
+            movies: prev.movies.length ? prev.movies : FALLBACK_MOVIES,
+            cinemas: prev.cinemas.length ? prev.cinemas : DEFAULT_CINEMAS,
+            error: "",
+          }));
         }
       });
     return () => controller.abort();
