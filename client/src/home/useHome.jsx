@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import {
-  Wine,
+  Trophy,
   Monitor,
   Armchair,
   Play,
@@ -12,31 +12,31 @@ const API_ORIGIN = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 const HERO_IMAGE =
   "https://images.hdqwalls.com/download/2024-dune-part-two-4k-movie-dr-1920x1080.jpg";
 
-// Nội dung giới thiệu; phim, rạp và lịch chiếu được lấy từ API MySQL.
+// Nội dung giới thiệu trải nghiệm thượng lưu chuẩn NOVA Cinema
 const experiences = [
   {
-    icon: Wine,
+    icon: Trophy,
     eyebrow: "PRIVATE HOSPITALITY",
     title: "NOVA Gold Lounge",
     description:
-      "Không gian đón tiếp sang trọng, riêng tư. Thư giãn cùng đồ uống và dịch vụ chăm sóc trước khi bước vào thế giới điện ảnh.",
-    note: "Đặc quyền từ hạng Gold",
+      "Khu vực sảnh đón tiếp sang trọng bậc nhất. Miễn phí cocktail đặc sắc, trà chiều thượng hạng và canapés được chuẩn bị bởi bếp trưởng dành riêng trước giờ chiếu.",
+    note: "Đặc quyền từ VIP & Gold",
   },
   {
     icon: Monitor,
     eyebrow: "NEXT-GEN PROJECTION",
     title: "Màn hình IMAX Laser 4K",
     description:
-      "Không gian trình chiếu rộng lớn, hình ảnh sắc nét và âm thanh sống động đưa bạn đến gần hơn với từng khoảnh khắc.",
-    note: "Đắm chìm trong từng khung hình",
+      "Hệ thống chiếu Laser 4K độc quyền mang đến độ sáng vượt trội 60%, độ tương phản sâu thẳm cùng hệ thống dải thanh vòm 12 kênh phát sóng sống động.",
+    note: "Độ phân giải siêu thực",
   },
   {
     icon: Armchair,
     eyebrow: "ULTIMATE COMFORT",
-    title: "Ghế Da Cao Cấp Ngả Tự Động",
+    title: "Ghế Da Cơ Học Ngả Tự Động",
     description:
-      "Thiết kế rộng rãi, đệm ngồi êm ái cùng khả năng điều chỉnh độ ngả giúp bạn tận hưởng bộ phim thật thoải mái.",
-    note: "Thư giãn theo cách của bạn",
+      "Ghế bọc da bò nhập khẩu Italia, tích hợp hệ thống sưởi và massage êm dịu, bàn sạc không dây cùng nút gọi phục vụ ẩm thực tận chỗ riêng tư.",
+    note: "Phục vụ tận chỗ tại rạp",
   },
 ];
 
@@ -44,7 +44,7 @@ const filters = [
   { id: "all", label: "Tất cả phim" },
   { id: "imax", label: "IMAX Experience" },
   { id: "vietnam", label: "Phim Việt Nam" },
-  { id: "international", label: "Phim Quốc Tế" },
+  { id: "family", label: "Hoạt hình & Gia đình" },
 ];
 
 function normalizeText(value) {
@@ -71,6 +71,32 @@ function formatDate(value) {
   if (!value) return "Đang cập nhật";
   const [year, month, day] = value.slice(0, 10).split("-");
   return `${day}/${month}/${year}`;
+}
+
+function formatReviewCount(count) {
+  if (!count && count !== 0) return "0";
+  const num = Number(count);
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1).replace(/\.0$/, "") + "k";
+  }
+  return String(num);
+}
+
+function getDaysUntil(dateStr) {
+  if (!dateStr) return null;
+  const target = new Date(dateStr.slice(0, 10) + "T00:00:00+07:00");
+  const todayParts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const p = (type) => todayParts.find((item) => item.type === type).value;
+  const today = new Date(`${p("year")}-${p("month")}-${p("day")}T00:00:00+07:00`);
+
+  const diffTime = target.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays > 0 ? diffDays : null;
 }
 
 function trailerUrl(title) {
@@ -192,9 +218,12 @@ export default function useHome() {
 
   const visibleMovies = movies.filter((movie) => {
     const matchesSearch = normalizeText(movie.title).includes(normalizeText(query));
-    const matchesFilter = activeFilter === "all"
-      || (activeFilter === "imax" && movie.imax)
-      || movie.country === activeFilter;
+    const genre = (movie.genre || "").toLowerCase();
+    const matchesFilter =
+      activeFilter === "all" ||
+      (activeFilter === "imax" && (movie.imax || (movie.format || "").toLowerCase().includes("imax"))) ||
+      (activeFilter === "vietnam" && movie.country === "vietnam") ||
+      (activeFilter === "family" && (genre.includes("hoạt hình") || genre.includes("gia đình") || movie.age === "P"));
     return matchesSearch && matchesFilter;
   });
 
@@ -307,7 +336,7 @@ export default function useHome() {
 
   return {
     HERO_IMAGE, movies, upcomingMovies, experiences, cinemas, showtimes, filters, heroMovies,
-    getToday, formatDate, trailerUrl, hideBrokenImage,
+    getToday, formatDate, formatReviewCount, getDaysUntil, trailerUrl, hideBrokenImage,
     menuOpen, setMenuOpen, searchOpen, setSearchOpen, query, setQuery, activeFilter, setActiveFilter,
     heroIndex, setHeroIndex, selectedMovieId, setSelectedMovieId, cinema, setCinema, date, setDate, time, setTime,
     interestedMovies, modal, setModal, featuredMovie, visibleMovies,
