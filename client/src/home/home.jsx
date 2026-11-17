@@ -27,6 +27,7 @@ import {
   Tag,
   ExternalLink,
   BadgeCheck,
+  CheckCircle2,
   Wallet,
   QrCode,
   Volume2,
@@ -120,7 +121,7 @@ function Modal({ title, children, onClose }) {
 }
 
 // Giao diện trang chủ
-export default function Home() {
+export default function Home({ onNavigate, selectedMovieIdFromParent }) {
   const {
     HERO_IMAGE,
     movies,
@@ -178,6 +179,12 @@ export default function Home() {
     showMembership,
   } = useHome();
 
+  useEffect(() => {
+    if (selectedMovieIdFromParent) {
+      setSelectedMovieId(selectedMovieIdFromParent);
+    }
+  }, [selectedMovieIdFromParent, setSelectedMovieId]);
+
   return (
     <>
       {/* HEADER */}
@@ -194,7 +201,18 @@ export default function Home() {
               Trang chủ
             </a>
 
-            <a href="#phim-dang-chieu" onClick={closeMenu}>
+            <a
+              href="#phim"
+              onClick={(e) => {
+                e.preventDefault();
+                closeMenu();
+                if (onNavigate) {
+                  onNavigate("movies");
+                } else {
+                  window.location.hash = "#phim";
+                }
+              }}
+            >
               Phim
             </a>
 
@@ -756,7 +774,7 @@ export default function Home() {
           <div className="container">
             <div className="section-intro">
               <p className="eyebrow">
-                <Sparkles size={14} />
+                <Gem size={14} />
                 ĐẲNG CẤP ĐIỆN ẢNH VƯỢT TRỘI
               </p>
 
@@ -764,7 +782,7 @@ export default function Home() {
 
               <p>
                 Mỗi suất chiếu tại NOVA Cinema là một hành trình thưởng thức nghệ thuật
-                đỉnh cao, nơi công nghệ tối tân hòa cùng phong cách phục vụ chuẩn khách
+                đỉnh cao, nơi công nghệ tối tân hội tụ cùng phong cách phục vụ chuẩn khách
                 sạn 5 sao.
               </p>
             </div>
@@ -773,7 +791,7 @@ export default function Home() {
               {experiences.map((item) => (
                 <article className="experience-card" key={item.title}>
                   <div className="experience-icon">
-                    <item.icon size={26} />
+                    <item.icon size={22} />
                   </div>
 
                   <p className="experience-eyebrow">{item.eyebrow}</p>
@@ -792,8 +810,8 @@ export default function Home() {
                       })
                     }
                   >
-                    {item.note}
-                    <ArrowRight size={16} />
+                    <span>{item.note}</span>
+                    <CheckCircle2 size={18} />
                   </button>
                 </article>
               ))}
