@@ -44,7 +44,7 @@ const FALLBACK_MOVIES = MOVIES_DATA.map((m) => ({
   duration: m.duration || 120,
   age: m.age,
   rating: m.rating,
-  reviews: 4200,
+  reviews: m.reviews || 4200,
   format: m.format,
   country: m.id === "mai" || m.id === "lat-mat-7" ? "vietnam" : "international",
   imax: Boolean(m.format && m.format.includes("IMAX")),

@@ -11,7 +11,7 @@ START TRANSACTION;
 INSERT INTO movies (
   id, title, short_title, genre, duration_minutes, age_rating, rating,
   review_count, format_label, country, imax, poster_url, description,
-  release_date, status, is_visible, featured_order
+  release_date, status, is_visible, featured_order, trailer_url
 )
 SELECT demo.* FROM (
   SELECT 'dune' AS id, 'Dune: Hành Tinh Cát – Phần Hai' AS title,
@@ -22,37 +22,44 @@ SELECT demo.* FROM (
     'https://bucket-image.inkmaginecms.com/version/hd/1/image/2024/07/8becb910-7d74-4098-aa73-2eea972379b6.jpg' AS poster_url,
     'Cuộc hành trình của Paul Atreides khi anh hợp nhất với Chani và những người Fremen để tìm lại công lý. Đứng trước sự giằng xé giữa tình yêu và vận mệnh, anh phải ngăn chặn một tương lai đen tối chỉ mình anh có thể nhìn thấy.' AS description,
     DATE_SUB(CURDATE(), INTERVAL 7 DAY) AS release_date,
-    'now_showing' AS status, TRUE AS is_visible, 1 AS featured_order
+    'now_showing' AS status, TRUE AS is_visible, 1 AS featured_order,
+    'https://www.youtube.com/watch?v=Way9Dexny3w' AS trailer_url
   UNION ALL SELECT 'oppenheimer', 'Oppenheimer', 'Oppenheimer',
     'Chính kịch / Lịch sử', 180, 'T18', 9.4, 8900, 'DOLBY CINEMA', 'international', TRUE,
     '/oppenheimer.jpg',
     'Bước vào câu chuyện của nhà vật lý J. Robert Oppenheimer, nơi những khám phá khoa học đi cùng các lựa chọn làm thay đổi lịch sử.',
-    DATE_SUB(CURDATE(), INTERVAL 7 DAY), 'now_showing', TRUE, 2
+    DATE_SUB(CURDATE(), INTERVAL 7 DAY), 'now_showing', TRUE, 2,
+    'https://www.youtube.com/watch?v=uYPbbksJxIg'
   UNION ALL SELECT 'mai', 'Mai', 'Mai', 'Tâm lý / Tình cảm',
     131, 'T18', 9.1, 12000, 'GOLD LOUNGE', 'vietnam', FALSE,
     'https://phunuso.mediacdn.vn/603486343963435008/2024/2/20/photo-1-17084186348131729412485-1708419060885-17084190612161848993804.jpg',
     'Câu chuyện về một người phụ nữ với nhiều nỗi niềm quá khứ, một cuộc gặp gỡ bất ngờ và hành trình đi tìm quyền được hạnh phúc.',
-    DATE_SUB(CURDATE(), INTERVAL 7 DAY), 'now_showing', TRUE, NULL
+    DATE_SUB(CURDATE(), INTERVAL 7 DAY), 'now_showing', TRUE, NULL,
+    'https://www.youtube.com/watch?v=EX6clvId19s'
   UNION ALL SELECT 'godzilla', 'Godzilla x Kong: Đế Chế Mới', 'Godzilla x Kong',
     'Hành động / Viễn tưởng', 115, 'T13', 8.9, 3100, '4DX 3D', 'international', FALSE,
     'https://movingstory-prod.imgix.net/mx/posters/godzilla-x-kong-the-new-empire-a9c186e4.jpg',
     'Hai Titan huyền thoại cùng đối mặt với một hiểm họa ẩn sâu trong lòng đất, đe dọa sự tồn tại của cả thế giới.',
-    DATE_SUB(CURDATE(), INTERVAL 7 DAY), 'now_showing', TRUE, 3
+    DATE_SUB(CURDATE(), INTERVAL 7 DAY), 'now_showing', TRUE, 3,
+    'https://www.youtube.com/watch?v=qqrpMRDuPfc'
   UNION ALL SELECT 'deadpool', 'Deadpool & Wolverine', 'Deadpool & Wolverine',
     'Hành động / Hài hước', 128, 'T18', NULL, 0, '2D', 'international', FALSE,
     'https://m.media-amazon.com/images/M/MV5BZTk5ODY0MmQtMzA3Ni00NGY1LThiYzItZThiNjFiNDM4MTM3XkEyXkFqcGc%40._V1_.jpg',
     'Sự kết hợp bùng nổ của hai cá tính đối lập trong một chuyến phiêu lưu đầy bất ngờ.',
-    DATE_ADD(CURDATE(), INTERVAL 6 DAY), 'coming_soon', TRUE, NULL
+    DATE_ADD(CURDATE(), INTERVAL 6 DAY), 'coming_soon', TRUE, NULL,
+    'https://www.youtube.com/watch?v=73_1biulkYk'
   UNION ALL SELECT 'joker', 'Joker: Folie à Deux', 'Joker: Folie à Deux',
     'Tâm lý / Nhạc kịch / Tội phạm', 138, 'T18', NULL, 0, '2D', 'international', FALSE,
     'https://images.squarespace-cdn.com/content/v1/51b3dc8ee4b051b96ceb10de/1724085929834-HJWZ76KQGWCQCCD8F3L5/Screenshot%2B2024-08-19%2Bat%2B9.41.31%E2%80%AFAM.jpg',
     'Bản tình ca đầy biến động giữa Arthur Fleck và Harley Quinn trong thế giới của âm nhạc.',
-    DATE_ADD(CURDATE(), INTERVAL 14 DAY), 'coming_soon', TRUE, NULL
+    DATE_ADD(CURDATE(), INTERVAL 14 DAY), 'coming_soon', TRUE, NULL,
+    'https://www.youtube.com/watch?v=_OKAwz2NiJs'
   UNION ALL SELECT 'gladiator', 'Gladiator II', 'Gladiator II',
     'Sử thi / Hành động', 148, 'T18', NULL, 0, '2D', 'international', FALSE,
     'https://cf-img-a-in.tosshub.com/sites/visualstory/wp/2024/11/Snapinstaapp_461744425_449342244797266_453919909910667894_n_1080ITG-1732181655903.jpg?size=%2A%3A900',
     'Huyền thoại đấu trường La Mã trở lại với những trận chiến và khát vọng giành lại tự do.',
-    DATE_ADD(CURDATE(), INTERVAL 28 DAY), 'coming_soon', TRUE, NULL
+    DATE_ADD(CURDATE(), INTERVAL 28 DAY), 'coming_soon', TRUE, NULL,
+    'https://www.youtube.com/watch?v=4rgYUipGJNo'
 ) AS demo
 LEFT JOIN movies existing ON existing.id = demo.id
 WHERE existing.id IS NULL;

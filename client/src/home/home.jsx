@@ -640,7 +640,13 @@ export default function Home({ onNavigate, selectedMovieIdFromParent }) {
                         <button
                           className="button button-dark"
                           type="button"
-                          onClick={() => showMovieDetail(movie)}
+                          onClick={() => {
+                            if (onNavigate) {
+                              onNavigate("movie-detail", movie.id, movie);
+                            } else {
+                              showMovieDetail(movie);
+                            }
+                          }}
                         >
                           Chi tiết
                         </button>
