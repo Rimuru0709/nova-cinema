@@ -16,20 +16,14 @@
 
 /* Header link active state */
 .main-nav a.nav-link-active {
-  color: #ffce6d !important;
+  color: inherit !important;
   position: relative;
 }
 
-.main-nav a.nav-link-active::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: #ffce6d;
-  border-radius: 999px;
-  box-shadow: 0 0 8px rgba(255, 206, 109, 0.7);
+.main-nav a.nav-link-active::after,
+.main-nav a::after {
+  display: none !important;
+  content: none !important;
 }
 
 /* Gold Tier Pill Button */

@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import {
+  Home,
   Search,
   Bell,
   Crown,
@@ -216,6 +217,10 @@ export default function MovieList({ onNavigate, onSelectMovieAndBook }) {
 
   // Mở modal xem thông tin chi tiết phim
   function openMovieDetail(movie) {
+    if (onNavigate) {
+      onNavigate("movie-detail", movie.id, movie);
+      return;
+    }
     setModal({
       title: movie.title,
       content: (
@@ -466,10 +471,9 @@ export default function MovieList({ onNavigate, onSelectMovieAndBook }) {
               Trang chủ
             </a>
 
-            {/* Phim đang active */}
+            {/* Phim: đang ở trang Danh sách phim, cuộn lên đầu */}
             <a
               href="#phim"
-              className="nav-link-active"
               onClick={(e) => {
                 e.preventDefault();
                 setMenuOpen(false);
@@ -596,9 +600,10 @@ export default function MovieList({ onNavigate, onSelectMovieAndBook }) {
                 else window.location.hash = "#trang-chu";
               }}
             >
-              Trang chủ
+              <Home size={14} />
+              <span>Trang chủ</span>
             </a>
-            <span className="crumb-sep">/</span>
+            <span className="crumb-sep">›</span>
             <span className="crumb-current">Danh sách phim</span>
           </nav>
 
@@ -809,7 +814,11 @@ export default function MovieList({ onNavigate, onSelectMovieAndBook }) {
               {paginatedMovies.map((movie) => (
                 <article key={movie.id} className="movie-card">
                   {/* Poster Box */}
-                  <div className="movie-poster-box">
+                  <div
+                    className="movie-poster-box"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => openMovieDetail(movie)}
+                  >
                     <img
                       src={movie.poster}
                       alt={`Poster ${movie.title}`}
@@ -876,7 +885,12 @@ export default function MovieList({ onNavigate, onSelectMovieAndBook }) {
                       {movie.genreUpper || movie.genre}
                     </span>
 
-                    <h3 className="movie-card-title" title={movie.title}>
+                    <h3
+                      className="movie-card-title"
+                      title={movie.title}
+                      style={{ cursor: "pointer" }}
+                      onClick={() => openMovieDetail(movie)}
+                    >
                       {movie.title}
                     </h3>
 
