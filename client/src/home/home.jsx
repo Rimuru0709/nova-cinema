@@ -268,14 +268,13 @@ export default function Home({ onNavigate, selectedMovieIdFromParent }) {
               GOLD TIER
             </a>
 
-            <button
-              type="button"
+            <a
               className="avatar-button"
-              aria-label="Xem thông tin hội viên"
-              onClick={showMembership}
+              href="#tai-khoan"
+              aria-label="Mở tài khoản cá nhân"
             >
               <UserRound size={18} />
-            </button>
+            </a>
 
             <button
               type="button"
@@ -324,11 +323,10 @@ export default function Home({ onNavigate, selectedMovieIdFromParent }) {
           <div
             className="hero-background"
             style={{
-              backgroundImage: `url("${
-                featuredMovie?.id === "dune"
-                  ? HERO_IMAGE
-                  : featuredMovie?.image || HERO_IMAGE
-              }")`,
+              backgroundImage: `url("${featuredMovie?.id === "dune"
+                ? HERO_IMAGE
+                : featuredMovie?.image || HERO_IMAGE
+                }")`,
             }}
           />
 
@@ -338,74 +336,74 @@ export default function Home({ onNavigate, selectedMovieIdFromParent }) {
             <div className="hero-content">
               {featuredMovie ? (
                 <>
-              <div className="hero-badges">
-                <span className="badge badge-gold badge-pill">
-                  <Star size={12} fill="currentColor" />
-                  KHỞI CHIẾU HÔM NAY
-                </span>
+                  <div className="hero-badges">
+                    <span className="badge badge-gold badge-pill">
+                      <Star size={12} fill="currentColor" />
+                      KHỞI CHIẾU HÔM NAY
+                    </span>
 
-                <span className="badge badge-dark badge-pill">
-                  <Monitor size={12} />
-                  {featuredMovie.imax ? "Độc quyền IMAX Laser" : featuredMovie.format || "Độc quyền IMAX Laser"}
-                </span>
+                    <span className="badge badge-dark badge-pill">
+                      <Monitor size={12} />
+                      {featuredMovie.imax ? "Độc quyền IMAX Laser" : featuredMovie.format || "Độc quyền IMAX Laser"}
+                    </span>
 
-                <span className="badge badge-dark badge-pill">
-                  <Volume2 size={12} />
-                  Âm thanh Dolby Atmos
-                </span>
+                    <span className="badge badge-dark badge-pill">
+                      <Volume2 size={12} />
+                      Âm thanh Dolby Atmos
+                    </span>
 
-                <span className="badge badge-dark badge-pill">
-                  {featuredMovie.age} • {featuredMovie.duration} phút
-                </span>
-              </div>
+                    <span className="badge badge-dark badge-pill">
+                      {featuredMovie.age} • {featuredMovie.duration} phút
+                    </span>
+                  </div>
 
-              <p className="eyebrow hero-eyebrow">SIÊU PHẨM MÀN ẢNH RỘNG 2026</p>
+                  <p className="eyebrow hero-eyebrow">SIÊU PHẨM MÀN ẢNH RỘNG 2026</p>
 
-              <h1 className="hero-title">{featuredMovie.title}</h1>
+                  <h1 className="hero-title">{featuredMovie.title}</h1>
 
-              <p className="hero-description">
-                {featuredMovie.description}
-              </p>
+                  <p className="hero-description">
+                    {featuredMovie.description}
+                  </p>
 
-              <div className="hero-action-row">
-                <button
-                  className="hero-cta-btn"
-                  type="button"
-                  onClick={() => chooseMovie(featuredMovie)}
-                >
-                  <Ticket size={15} />
-                  <span>ĐẶT VÉ NGAY</span>
-                </button>
-
-                <a
-                  className="hero-trailer-btn"
-                  href={featuredMovie.trailerUrl || trailerUrl(featuredMovie.title)}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <span className="trailer-play-circle">
-                    <Play size={9} fill="#0b1e33" color="#0b1e33" className="play-triangle" />
-                  </span>
-                  <span>Xem Trailer</span>
-                </a>
-
-                <div
-                  className="hero-pagination-capsule"
-                  aria-label="Chọn banner phim"
-                >
-                  {heroMovies.map((movie, index) => (
+                  <div className="hero-action-row">
                     <button
-                      key={movie.id}
+                      className="hero-cta-btn"
                       type="button"
-                      className={`hero-capsule-item ${heroIndex === index ? "is-active" : ""}`}
-                      aria-pressed={heroIndex === index}
-                      onClick={() => setHeroIndex(index)}
+                      onClick={() => chooseMovie(featuredMovie)}
                     >
-                      0{index + 1} • {movie.shortTitle || movie.title}
+                      <Ticket size={15} />
+                      <span>ĐẶT VÉ NGAY</span>
                     </button>
-                  ))}
-                </div>
-              </div>
+
+                    <a
+                      className="hero-trailer-btn"
+                      href={featuredMovie.trailerUrl || trailerUrl(featuredMovie.title)}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <span className="trailer-play-circle">
+                        <Play size={9} fill="#0b1e33" color="#0b1e33" className="play-triangle" />
+                      </span>
+                      <span>Xem Trailer</span>
+                    </a>
+
+                    <div
+                      className="hero-pagination-capsule"
+                      aria-label="Chọn banner phim"
+                    >
+                      {heroMovies.map((movie, index) => (
+                        <button
+                          key={movie.id}
+                          type="button"
+                          className={`hero-capsule-item ${heroIndex === index ? "is-active" : ""}`}
+                          aria-pressed={heroIndex === index}
+                          onClick={() => setHeroIndex(index)}
+                        >
+                          0{index + 1} • {movie.shortTitle || movie.title}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </>
               ) : (
                 <div className="catalog-state" role={catalogError ? "alert" : "status"}>
@@ -545,9 +543,8 @@ export default function Home({ onNavigate, selectedMovieIdFromParent }) {
                   <button
                     key={filter.id}
                     type="button"
-                    className={`filter-button ${
-                      activeFilter === filter.id ? "is-active" : ""
-                    }`}
+                    className={`filter-button ${activeFilter === filter.id ? "is-active" : ""
+                      }`}
                     aria-pressed={activeFilter === filter.id}
                     onClick={() => setActiveFilter(filter.id)}
                   >
@@ -591,15 +588,14 @@ export default function Home({ onNavigate, selectedMovieIdFromParent }) {
                       />
 
                       <span
-                        className={`age-badge ${
-                          movie.age === "T18"
-                            ? "age-red"
-                            : movie.age === "T16"
+                        className={`age-badge ${movie.age === "T18"
+                          ? "age-red"
+                          : movie.age === "T16"
                             ? "age-gold"
                             : movie.age === "T13"
-                            ? "age-orange"
-                            : "age-green"
-                        }`}
+                              ? "age-orange"
+                              : "age-green"
+                          }`}
                       >
                         {movie.age}
                       </span>
@@ -735,9 +731,8 @@ export default function Home({ onNavigate, selectedMovieIdFromParent }) {
 
                       <div className="upcoming-actions">
                         <button
-                          className={`button button-dark ${
-                            interested ? "is-following" : ""
-                          }`}
+                          className={`button button-dark ${interested ? "is-following" : ""
+                            }`}
                           type="button"
                           aria-pressed={interested}
                           onClick={() => toggleInterest(movie.id)}
@@ -867,13 +862,13 @@ export default function Home({ onNavigate, selectedMovieIdFromParent }) {
                 </div>
 
                 <div className="membership-buttons">
-                  <button
-                    type="button"
+                  <a
                     className="button button-gold"
-                    onClick={showMembership}
+                    href="#dang-ky"
+                    onClick={closeMenu}
                   >
                     ĐĂNG KÝ THÀNH VIÊN VIP
-                  </button>
+                  </a>
 
                   <button
                     type="button"

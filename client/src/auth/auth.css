@@ -1,0 +1,1614 @@
+/* ==============================
+   CẤU HÌNH TRANG
+============================== */
+
+.nova-auth-page {
+    --na-bg: #031729;
+    --na-surface: #092238;
+    --na-inset: #021323;
+    --na-soft: #172f46;
+    --na-text: #d1e1f9;
+    --na-muted: #a9bfd9;
+    --na-gold: #ffcf70;
+
+    min-height: 100vh;
+    color: var(--na-text);
+    background:
+        radial-gradient(ellipse 850px 720px at 49% 19%,
+            #1a2932 0%,
+            transparent 76%),
+        var(--na-bg);
+
+    font-family: "Be Vietnam Pro", Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+.nova-auth-page *,
+.nova-auth-page *::before,
+.nova-auth-page *::after {
+    box-sizing: border-box;
+}
+
+.nova-auth-page a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.nova-auth-page button,
+.nova-auth-page input {
+    font: inherit;
+}
+
+.nova-auth-page button {
+    color: inherit;
+    cursor: pointer;
+}
+
+.nova-auth-page button,
+.nova-auth-page a,
+.nova-auth-page input {
+    -webkit-tap-highlight-color: transparent;
+}
+
+.nova-auth-page button:focus-visible,
+.nova-auth-page a:focus-visible,
+.nova-auth-page input:focus-visible {
+    outline: 3px solid var(--na-gold);
+    outline-offset: 4px;
+}
+
+.nova-auth-page svg {
+    flex-shrink: 0;
+}
+
+.nova-auth-page h1,
+.nova-auth-page h2,
+.nova-auth-page h3,
+.nova-auth-page p {
+    margin: 0;
+}
+
+.nova-auth-page .na-container {
+    width: min(1440px, calc(100% - 80px));
+    margin-inline: auto;
+}
+
+/* ==============================
+   HEADER
+============================== */
+
+.nova-auth-page .na-header {
+    height: 100px;
+    background: #031627;
+    border-bottom: 1px solid rgb(171 198 226 / 4%);
+}
+
+.nova-auth-page .na-header-inner {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+.nova-auth-page .na-brand {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 12px;
+    line-height: 1.15;
+}
+
+.nova-auth-page .na-brand img {
+    display: block;
+    width: 54px;
+    height: 54px;
+    object-fit: contain;
+}
+
+.nova-auth-page .na-brand>span {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.nova-auth-page .na-brand strong {
+    color: var(--na-gold);
+    font-size: 23px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.nova-auth-page .na-brand small {
+    color: #a9c2e2;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.7px;
+}
+
+.nova-auth-page .na-nav {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 20px;
+}
+
+.nova-auth-page .na-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: #c9c7c2;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.45;
+}
+
+.nova-auth-page .na-nav a:hover {
+    color: var(--na-gold);
+}
+
+.nova-auth-page .na-header-actions {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 12px;
+}
+
+.nova-auth-page .na-icon-button {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    color: var(--na-muted);
+    background: var(--na-soft);
+}
+
+.nova-auth-page .na-icon-button:hover {
+    background: #233e56;
+}
+
+.nova-auth-page .na-notification-dot {
+    position: absolute;
+    top: 9px;
+    right: 11px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--na-gold);
+}
+
+.nova-auth-page .na-tier {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 6px 12px;
+    border: 0;
+    border-radius: 30px;
+    color: var(--na-gold);
+    background: var(--na-soft);
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.nova-auth-page .na-avatar {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid #8b7446;
+    border-radius: 50%;
+    color: var(--na-gold);
+    background: #172a39;
+}
+
+.nova-auth-page .na-menu-toggle {
+    display: none;
+}
+
+/* ==============================
+   GIỚI THIỆU
+============================== */
+
+.nova-auth-page .na-main {
+    padding-top: 46px;
+    padding-bottom: 50px;
+}
+
+.nova-auth-page .na-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-bottom: 16px;
+    color: var(--na-muted);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.nova-auth-page .na-breadcrumb a {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.nova-auth-page .na-breadcrumb [aria-current="page"] {
+    color: var(--na-gold);
+}
+
+.nova-auth-page .na-intro {
+    margin-bottom: 48px;
+}
+
+.nova-auth-page .na-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 15px;
+    border-radius: 30px;
+    color: var(--na-gold);
+    background: var(--na-soft);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+}
+
+.nova-auth-page .na-intro h1 {
+    max-width: 850px;
+    margin: 10px 0 15px;
+    font-size: clamp(36px, 4.2vw, 58px);
+    line-height: 1.17;
+    font-weight: 800;
+    letter-spacing: -1.6px;
+}
+
+.nova-auth-page .na-intro h1 span {
+    color: var(--na-gold);
+}
+
+.nova-auth-page .na-intro-bottom {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 40px;
+}
+
+.nova-auth-page .na-intro-bottom>p {
+    max-width: 830px;
+    color: #c2c4c7;
+    font-size: 17px;
+    line-height: 1.8;
+}
+
+.nova-auth-page .na-security-pill {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 10px;
+    padding: 9px 16px;
+    border-radius: 16px;
+    color: var(--na-muted);
+    background: var(--na-soft);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.nova-auth-page .na-security-pill>svg {
+    color: var(--na-gold);
+}
+
+.nova-auth-page .na-security-pill strong {
+    display: block;
+    color: var(--na-text);
+    font-size: 11px;
+}
+
+/* ==============================
+   BỐ CỤC CHÍNH
+============================== */
+
+.nova-auth-page .na-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.43fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 40px;
+}
+
+.nova-auth-page .na-form-card {
+    position: relative;
+    min-width: 0;
+    padding: 30px;
+    overflow: hidden;
+    border-radius: 17px;
+    background: var(--na-surface);
+    scroll-margin-top: 24px;
+}
+
+.nova-auth-page .na-form-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 2px;
+    background: linear-gradient(90deg,
+            transparent,
+            #a58a4f,
+            transparent);
+}
+
+/* ==============================
+   FORM
+============================== */
+
+.nova-auth-page .na-tabs {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 5px;
+    padding: 5px;
+    margin-bottom: 32px;
+    border-radius: 16px;
+    background: var(--na-inset);
+}
+
+.nova-auth-page .na-tabs button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 11px;
+    color: #c7c4bc;
+    background: transparent;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.nova-auth-page .na-tabs button.is-active {
+    color: #49350b;
+    background: var(--na-gold);
+}
+
+.nova-auth-page .na-tabs button:not(.is-active):hover {
+    background: #132b40;
+}
+
+.nova-auth-page .na-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.nova-auth-page .na-field {
+    min-width: 0;
+}
+
+.nova-auth-page .na-field-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.nova-auth-page .na-field-heading label {
+    font-weight: 700;
+}
+
+.nova-auth-page .na-field-heading>span {
+    color: #c3c0bb;
+    font-size: 12px;
+    text-align: right;
+}
+
+.nova-auth-page .na-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 58px;
+    padding: 0 17px;
+    border: 1px solid transparent;
+    border-radius: 11px;
+    background: var(--na-inset);
+    transition:
+        border-color 0.15s,
+        box-shadow 0.15s;
+}
+
+.nova-auth-page .na-input-wrap:focus-within {
+    border-color: #e9bc63;
+    box-shadow: 0 0 0 3px rgb(255 207 112 / 8%);
+}
+
+.nova-auth-page .na-input-wrap>svg {
+    color: #c8c8c2;
+}
+
+.nova-auth-page .na-input-wrap input {
+    width: 100%;
+    min-width: 0;
+    min-height: 56px;
+    padding: 13px 0;
+    border: 0;
+    outline: 0;
+    color: var(--na-text);
+    background: transparent;
+    font-size: 16px;
+}
+
+.nova-auth-page .na-input-wrap input:focus-visible {
+    outline: 0;
+}
+
+.nova-auth-page .na-input-wrap input::placeholder {
+    color: #879db4;
+    opacity: 1;
+}
+
+.nova-auth-page .na-input-wrap input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 100px var(--na-inset) inset;
+    -webkit-text-fill-color: var(--na-text);
+    caret-color: var(--na-text);
+}
+
+.nova-auth-page .na-input-wrap.has-error {
+    border-color: #ed8b83;
+}
+
+.nova-auth-page .na-password-toggle {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 44px;
+    min-height: 44px;
+    margin-right: -10px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    color: #c7c7c4;
+    background: transparent;
+}
+
+.nova-auth-page .na-password-toggle:hover {
+    color: var(--na-gold);
+}
+
+.nova-auth-page .na-field-error {
+    margin-top: 6px;
+    color: #ffb2a7;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.nova-auth-page .na-text-link {
+    padding: 0;
+    border: 0;
+    color: var(--na-gold);
+    background: transparent;
+    font-size: 13px;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.nova-auth-page .na-form-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.nova-auth-page .na-check-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    min-height: 44px;
+    padding-block: 10px;
+    color: #c5c4bd;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.nova-auth-page .na-check-label input {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin: 2px 0 0;
+    accent-color: var(--na-gold);
+    cursor: pointer;
+}
+
+.nova-auth-page .na-small-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--na-muted);
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.nova-auth-page .na-password-hint {
+    color: var(--na-muted);
+    font-size: 12px;
+}
+
+.nova-auth-page .na-submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 17px;
+    width: 100%;
+    min-height: 66px;
+    padding: 15px 24px;
+    border: 1px solid #f5ca76;
+    border-radius: 11px;
+    color: #493307;
+    background: var(--na-gold);
+    box-shadow: 0 8px 22px rgb(255 207 112 / 13%);
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.nova-auth-page .na-submit:hover {
+    background: #ffda8c;
+}
+
+.nova-auth-page .na-message {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 18px;
+    padding: 13px 15px;
+    border: 1px solid #7997bf55;
+    border-radius: 10px;
+    color: var(--na-text);
+    background: #19334b;
+    font-size: 13px;
+}
+
+.nova-auth-page .na-info-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 11px;
+    background: var(--na-inset);
+}
+
+.nova-auth-page .na-info-box>svg {
+    color: var(--na-gold);
+}
+
+.nova-auth-page .na-info-box strong {
+    display: block;
+    font-size: 13px;
+}
+
+.nova-auth-page .na-info-box p {
+    margin-top: 5px;
+    color: #c3c3bf;
+    font-size: 13px;
+    line-height: 1.75;
+}
+
+.nova-auth-page .na-divider {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 20px 0 14px;
+    color: var(--na-muted);
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 0.6px;
+}
+
+.nova-auth-page .na-divider::before,
+.nova-auth-page .na-divider::after {
+    content: "";
+    flex: 1;
+    min-width: 15px;
+    height: 1px;
+    background: #274055;
+}
+
+.nova-auth-page .na-socials {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.nova-auth-page .na-socials button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 10px 8px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background: var(--na-soft);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.nova-auth-page .na-socials button:hover {
+    border-color: #60738a;
+    background: #1c384f;
+}
+
+.nova-auth-page .na-socials button:last-child {
+    color: var(--na-gold);
+}
+
+.nova-auth-page .na-google-letter {
+    color: var(--na-gold);
+    font-family: Arial, sans-serif;
+    font-size: 23px;
+    font-weight: 800;
+}
+
+.nova-auth-page .na-preview-note {
+    margin-top: 13px;
+    color: #91a6bc;
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.nova-auth-page .na-register-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.nova-auth-page .na-recovery-heading {
+    margin-bottom: 22px;
+}
+
+.nova-auth-page .na-recovery-heading h2 {
+    font-size: 26px;
+}
+
+.nova-auth-page .na-recovery-heading p {
+    margin-top: 8px;
+    color: var(--na-muted);
+    font-size: 14px;
+}
+
+.nova-auth-page .na-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 44px;
+    margin-bottom: 10px;
+    padding: 0;
+    border: 0;
+    color: var(--na-muted);
+    background: transparent;
+    font-size: 13px;
+}
+
+/* ==============================
+   THẺ THÀNH VIÊN
+============================== */
+
+.nova-auth-page .na-sidebar {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 30px;
+}
+
+.nova-auth-page .na-membership-panel {
+    padding: 30px;
+    border-radius: 17px;
+    background:
+        radial-gradient(ellipse at 95% 6%,
+            #263943 0%,
+            transparent 56%),
+        var(--na-surface);
+    scroll-margin-top: 24px;
+}
+
+.nova-auth-page .na-panel-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.nova-auth-page .na-panel-heading>div>span {
+    color: var(--na-gold);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+}
+
+.nova-auth-page .na-panel-heading h2 {
+    margin-top: 4px;
+    font-size: 27px;
+    line-height: 1.3;
+    letter-spacing: -0.6px;
+}
+
+.nova-auth-page .na-round-crown {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    color: var(--na-gold);
+    background: rgb(255 255 255 / 4%);
+}
+
+.nova-auth-page .na-membership-card {
+    min-height: 215px;
+    padding: 20px;
+    overflow: hidden;
+    border: 1px solid #d7b76455;
+    border-radius: 15px;
+    color: #4b380c;
+    background: linear-gradient(130deg,
+            #dfb653 0%,
+            #ae8731 48%,
+            #634b0b 100%);
+}
+
+.nova-auth-page .na-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.nova-auth-page .na-card-top p {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.nova-auth-page .na-card-top h3 {
+    font-size: 23px;
+    font-weight: 800;
+    line-height: 1.3;
+}
+
+.nova-auth-page .na-card-number {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 23px 0;
+    color: #fff4d6;
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 3px;
+}
+
+.nova-auth-page .na-card-number>svg {
+    width: 46px;
+    height: 36px;
+    padding: 7px 10px;
+    border-radius: 5px;
+    color: #ffe391;
+    background: #5e572c85;
+}
+
+.nova-auth-page .na-card-bottom {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.nova-auth-page .na-card-bottom small {
+    display: block;
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.nova-auth-page .na-card-bottom strong {
+    display: block;
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.nova-auth-page .na-card-bottom>div:last-child {
+    text-align: right;
+}
+
+.nova-auth-page .na-card-bottom>div:last-child strong {
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+.nova-auth-page .na-benefits-title {
+    margin: 23px 0 12px;
+    color: var(--na-muted);
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.6;
+    letter-spacing: 0.4px;
+}
+
+.nova-auth-page .na-benefits {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.nova-auth-page .na-benefits li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.nova-auth-page .na-benefits li>svg {
+    width: 24px;
+    height: 24px;
+    margin-top: 1px;
+    padding: 5px;
+    border-radius: 50%;
+    color: var(--na-gold);
+    background: rgb(255 207 112 / 16%);
+    stroke-width: 3;
+}
+
+.nova-auth-page .na-benefits strong {
+    display: block;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.nova-auth-page .na-benefits p {
+    margin-top: 2px;
+    color: #c9c4bb;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* ==============================
+   TÀI KHOẢN DEMO
+============================== */
+
+.nova-auth-page .na-demo-panel {
+    padding: 23px 20px 20px;
+    border-radius: 16px;
+    background: var(--na-surface);
+}
+
+.nova-auth-page .na-demo-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nova-auth-page .na-demo-heading h2 {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    gap: 8px;
+    color: var(--na-gold);
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+.nova-auth-page .na-demo-heading>span {
+    flex-shrink: 0;
+    padding: 5px 10px;
+    border-radius: 25px;
+    color: var(--na-muted);
+    background: #334e69;
+    font-size: 10px;
+}
+
+.nova-auth-page .na-demo-copy {
+    margin: 17px 0;
+    color: #c4c5c5;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.nova-auth-page .na-demo-account {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+    padding: 13px 11px;
+    border: 1px solid transparent;
+    border-radius: 11px;
+    background: var(--na-soft);
+    text-align: left;
+}
+
+.nova-auth-page .na-demo-account:hover {
+    border-color: #b3935355;
+    background: #1e3a51;
+}
+
+.nova-auth-page .na-demo-account>svg:first-child {
+    width: 37px;
+    height: 37px;
+    padding: 9px;
+    border-radius: 50%;
+    color: var(--na-gold);
+    background: rgb(255 207 112 / 18%);
+}
+
+.nova-auth-page .na-demo-account>svg:last-child {
+    align-self: center;
+    margin-left: auto;
+}
+
+.nova-auth-page .na-demo-account-text {
+    min-width: 0;
+}
+
+.nova-auth-page .na-demo-account-text strong {
+    display: block;
+    font-size: 12px;
+}
+
+.nova-auth-page .na-demo-account-text small {
+    display: block;
+    margin-top: 3px;
+    color: var(--na-muted);
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 11px;
+    overflow-wrap: anywhere;
+}
+
+.nova-auth-page .na-demo-account-text>span {
+    display: block;
+    margin-top: 3px;
+    color: #c9c5bd;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.nova-auth-page .na-demo-meta {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    margin-top: 15px;
+    color: #91a6bc;
+    font-size: 10px;
+}
+
+.nova-auth-page .na-demo-meta>span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* ==============================
+   FOOTER
+============================== */
+
+.nova-auth-page .na-footer {
+    padding: 48px 0 35px;
+    background: #021322;
+}
+
+.nova-auth-page .na-footer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 35px;
+}
+
+.nova-auth-page .na-footer-grid h2 {
+    margin-bottom: 18px;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.nova-auth-page .na-footer-description {
+    margin: 20px 0;
+    color: #c5c3bc;
+    font-size: 14px;
+    line-height: 1.9;
+}
+
+.nova-auth-page .na-certification {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.nova-auth-page .na-certification svg {
+    color: var(--na-gold);
+}
+
+.nova-auth-page .na-footer-links {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.nova-auth-page .na-footer-links a,
+.nova-auth-page .na-footer-links button {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    color: #c5c3bc;
+    background: transparent;
+    font-size: 14px;
+    text-align: left;
+}
+
+.nova-auth-page .na-footer-links a:hover,
+.nova-auth-page .na-footer-links button:hover {
+    color: var(--na-gold);
+}
+
+.nova-auth-page .na-cinemas {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.nova-auth-page .na-cinemas strong {
+    font-size: 14px;
+}
+
+.nova-auth-page .na-cinemas p {
+    color: #c5c3bc;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.nova-auth-page .na-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.nova-auth-page .na-contact li {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    color: #c5c3bc;
+    font-size: 13px;
+}
+
+.nova-auth-page .na-contact svg {
+    color: var(--na-gold);
+}
+
+.nova-auth-page .na-contact strong {
+    display: block;
+    color: var(--na-gold);
+    font-size: 19px;
+}
+
+.nova-auth-page .na-footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-top: 65px;
+    color: #c6c3bb;
+    font-size: 12px;
+}
+
+.nova-auth-page .na-payments {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 9px;
+}
+
+.nova-auth-page .na-payments svg {
+    color: var(--na-muted);
+}
+
+/* ==============================
+   LAPTOP NHỎ / TABLET NGANG
+============================== */
+
+@media (max-width: 1350px) {
+    .nova-auth-page .na-header-inner {
+        gap: 20px;
+    }
+
+    .nova-auth-page .na-brand strong {
+        font-size: 20px;
+    }
+
+    .nova-auth-page .na-brand img {
+        width: 46px;
+        height: 46px;
+    }
+
+    .nova-auth-page .na-nav {
+        gap: 14px;
+    }
+
+    .nova-auth-page .na-nav a {
+        font-size: 12px;
+    }
+
+    .nova-auth-page .na-header-actions {
+        gap: 8px;
+    }
+
+    .nova-auth-page .na-tier {
+        font-size: 10px;
+    }
+
+    .nova-auth-page .na-layout {
+        gap: 28px;
+    }
+
+    .nova-auth-page .na-form-card,
+    .nova-auth-page .na-membership-panel {
+        padding: 25px;
+    }
+}
+
+@media (max-width: 1150px) {
+    .nova-auth-page .na-container {
+        width: calc(100% - 64px);
+    }
+
+    .nova-auth-page .na-header {
+        position: relative;
+        z-index: 10;
+        height: 86px;
+    }
+
+    .nova-auth-page .na-header-inner {
+        justify-content: space-between;
+    }
+
+    .nova-auth-page .na-menu-toggle {
+        display: grid;
+    }
+
+    .nova-auth-page .na-nav {
+        display: none;
+        position: absolute;
+        top: 85px;
+        left: 0;
+        right: 0;
+        padding: 16px 32px;
+        border-block: 1px solid #28435b;
+        background: var(--na-surface);
+        box-shadow: 0 14px 22px rgb(0 0 0 / 15%);
+    }
+
+    .nova-auth-page .na-nav.is-open {
+        display: flex;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 5px 28px;
+    }
+
+    .nova-auth-page .na-nav a {
+        font-size: 14px;
+    }
+
+    .nova-auth-page .na-intro-bottom {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .nova-auth-page .na-layout {
+        grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+        gap: 22px;
+    }
+
+    .nova-auth-page .na-form-card,
+    .nova-auth-page .na-membership-panel {
+        padding: 22px;
+    }
+
+    .nova-auth-page .na-tabs button {
+        gap: 7px;
+        font-size: 12px;
+    }
+
+    .nova-auth-page .na-form-row {
+        flex-wrap: wrap;
+        gap: 0 12px;
+    }
+
+    .nova-auth-page .na-panel-heading h2 {
+        font-size: 23px;
+    }
+
+    .nova-auth-page .na-demo-heading {
+        flex-wrap: wrap;
+    }
+
+    .nova-auth-page .na-footer-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 35px;
+    }
+}
+
+/* ==============================
+   TABLET DỌC
+============================== */
+
+@media (max-width: 900px) {
+    .nova-auth-page .na-main {
+        padding-top: 32px;
+        padding-bottom: 40px;
+    }
+
+    .nova-auth-page .na-intro {
+        margin-bottom: 32px;
+    }
+
+    .nova-auth-page .na-intro h1 {
+        max-width: 700px;
+        font-size: 45px;
+    }
+
+    .nova-auth-page .na-intro-bottom>p {
+        font-size: 15px;
+    }
+
+    .nova-auth-page .na-layout {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 28px;
+    }
+
+    .nova-auth-page .na-form-card,
+    .nova-auth-page .na-membership-panel {
+        padding: 28px;
+    }
+
+    .nova-auth-page .na-tabs button {
+        font-size: 14px;
+    }
+
+    .nova-auth-page .na-panel-heading h2 {
+        font-size: 27px;
+    }
+
+    .nova-auth-page .na-footer-bottom {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 18px;
+        margin-top: 40px;
+    }
+}
+
+/* ==============================
+   ĐIỆN THOẠI
+============================== */
+
+@media (max-width: 600px) {
+    .nova-auth-page .na-container {
+        width: calc(100% - 32px);
+    }
+
+    .nova-auth-page .na-header {
+        height: 76px;
+    }
+
+    .nova-auth-page .na-header-inner {
+        gap: 12px;
+    }
+
+    .nova-auth-page .na-brand {
+        gap: 8px;
+    }
+
+    .nova-auth-page .na-brand strong {
+        font-size: 15px;
+    }
+
+    .nova-auth-page .na-brand small {
+        font-size: 7px;
+        letter-spacing: 0.8px;
+    }
+
+    .nova-auth-page .na-brand img {
+        width: 40px;
+        height: 40px;
+    }
+
+    .nova-auth-page .na-header-actions {
+        gap: 5px;
+    }
+
+    .nova-auth-page .na-desktop-action,
+    .nova-auth-page .na-tier {
+        display: none;
+    }
+
+    .nova-auth-page .na-icon-button {
+        width: 44px;
+        height: 44px;
+    }
+
+    .nova-auth-page .na-nav {
+        top: 75px;
+        padding: 14px 20px;
+    }
+
+    .nova-auth-page .na-nav.is-open {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 3px 18px;
+    }
+
+    .nova-auth-page .na-main {
+        padding-top: 24px;
+        padding-bottom: 30px;
+    }
+
+    .nova-auth-page .na-breadcrumb {
+        gap: 5px;
+        font-size: 10px;
+    }
+
+    .nova-auth-page .na-breadcrumb svg {
+        width: 13px;
+        height: 13px;
+    }
+
+    .nova-auth-page .na-eyebrow {
+        padding: 5px 10px;
+        font-size: 9px;
+        letter-spacing: 0.3px;
+    }
+
+    .nova-auth-page .na-intro h1 {
+        margin-top: 12px;
+        font-size: 35px;
+        line-height: 1.2;
+        letter-spacing: -1px;
+    }
+
+    .nova-auth-page .na-intro-bottom>p {
+        font-size: 13px;
+    }
+
+    .nova-auth-page .na-security-pill,
+    .nova-auth-page .na-security-pill strong {
+        font-size: 10px;
+    }
+
+    .nova-auth-page .na-form-card,
+    .nova-auth-page .na-membership-panel {
+        padding: 18px;
+        border-radius: 14px;
+    }
+
+    .nova-auth-page .na-tabs {
+        gap: 2px;
+        padding: 4px;
+        margin-bottom: 24px;
+    }
+
+    .nova-auth-page .na-tabs button {
+        min-height: 54px;
+        gap: 6px;
+        padding: 8px 5px;
+        font-size: 11px;
+    }
+
+    .nova-auth-page .na-tabs svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .nova-auth-page .na-form {
+        gap: 18px;
+    }
+
+    .nova-auth-page .na-field-heading {
+        gap: 6px;
+        font-size: 11px;
+    }
+
+    .nova-auth-page .na-field-heading>span {
+        font-size: 10px;
+    }
+
+    .nova-auth-page .na-text-link {
+        font-size: 11px;
+    }
+
+    .nova-auth-page .na-input-wrap {
+        gap: 9px;
+        padding-inline: 12px;
+    }
+
+    .nova-auth-page .na-input-wrap input {
+        font-size: 16px;
+    }
+
+    .nova-auth-page .na-check-label {
+        font-size: 12px;
+    }
+
+    .nova-auth-page .na-small-note {
+        margin-left: 28px;
+        font-size: 10px;
+    }
+
+    .nova-auth-page .na-submit {
+        min-height: 58px;
+        font-size: 17px;
+    }
+
+    .nova-auth-page .na-info-box {
+        gap: 9px;
+        padding: 12px;
+    }
+
+    .nova-auth-page .na-info-box strong,
+    .nova-auth-page .na-info-box p {
+        font-size: 11px;
+    }
+
+    .nova-auth-page .na-divider {
+        gap: 9px;
+        font-size: 10px;
+    }
+
+    .nova-auth-page .na-socials {
+        gap: 7px;
+    }
+
+    .nova-auth-page .na-socials button {
+        gap: 5px;
+        padding-inline: 4px;
+        font-size: 9px;
+    }
+
+    .nova-auth-page .na-socials svg {
+        width: 17px;
+        height: 17px;
+    }
+
+    .nova-auth-page .na-register-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 18px;
+    }
+
+    .nova-auth-page .na-panel-heading h2 {
+        font-size: 23px;
+    }
+
+    .nova-auth-page .na-panel-heading>div>span {
+        font-size: 10px;
+    }
+
+    .nova-auth-page .na-round-crown {
+        width: 42px;
+        height: 42px;
+    }
+
+    .nova-auth-page .na-membership-card {
+        min-height: 200px;
+        padding: 16px;
+    }
+
+    .nova-auth-page .na-card-top p {
+        font-size: 9px;
+    }
+
+    .nova-auth-page .na-card-top h3 {
+        font-size: 20px;
+    }
+
+    .nova-auth-page .na-card-number {
+        gap: 10px;
+        font-size: 15px;
+        letter-spacing: 2px;
+    }
+
+    .nova-auth-page .na-card-bottom {
+        gap: 10px;
+    }
+
+    .nova-auth-page .na-card-bottom small {
+        font-size: 8px;
+    }
+
+    .nova-auth-page .na-card-bottom strong {
+        font-size: 12px;
+    }
+
+    .nova-auth-page .na-benefits-title {
+        font-size: 10px;
+    }
+
+    .nova-auth-page .na-benefits strong,
+    .nova-auth-page .na-benefits p {
+        font-size: 12px;
+    }
+
+    .nova-auth-page .na-demo-panel {
+        padding: 20px 16px;
+    }
+
+    .nova-auth-page .na-demo-heading h2 {
+        font-size: 14px;
+    }
+
+    .nova-auth-page .na-demo-account-text strong,
+    .nova-auth-page .na-demo-account-text>span {
+        font-size: 11px;
+    }
+
+    .nova-auth-page .na-demo-account-text small {
+        font-size: 10px;
+    }
+
+    .nova-auth-page .na-footer {
+        padding: 34px 0 28px;
+    }
+
+    .nova-auth-page .na-footer-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 30px;
+    }
+
+    .nova-auth-page .na-footer-grid h2 {
+        margin-bottom: 12px;
+        font-size: 14px;
+    }
+
+    .nova-auth-page .na-footer-description {
+        font-size: 13px;
+    }
+
+    .nova-auth-page .na-footer-bottom {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 380px) {
+    .nova-auth-page .na-card-number {
+        gap: 8px;
+        font-size: 13px;
+        letter-spacing: 1px;
+    }
+
+    .nova-auth-page .na-card-bottom strong {
+        font-size: 11px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .nova-auth-page *,
+    .nova-auth-page *::before,
+    .nova-auth-page *::after {
+        scroll-behavior: auto !important;
+        transition: none !important;
+        animation: none !important;
+    }
+}

@@ -1,0 +1,40 @@
+.na-admin {
+    min-height: 100vh;
+    background: radial-gradient(ellipse at top, #142f49, transparent 60%), #031629;
+    color: #e5f0ff;
+    font-family: "Be Vietnam Pro", Arial, sans-serif;
+}
+
+.na-admin .na-admin-wrap { width: min(1200px, calc(100% - 40px)); margin-inline: auto; padding-block: 30px 50px; }
+.na-admin .na-admin-back, .na-admin .na-admin-heading, .na-admin .na-admin-search label {
+    display: flex; align-items: center; gap: 10px;
+}
+.na-admin .na-admin-back { width: fit-content; min-height: 44px; color: #c1d5ed; }
+.na-admin .na-admin-heading { margin: 14px 0 22px; }
+.na-admin .na-admin-heading h1 { margin: 0; font-size: clamp(24px, 4vw, 36px); line-height: 1.2; }
+.na-admin .na-admin-heading span { display: grid; place-items: center; width: 45px; height: 45px; flex-shrink: 0; background: #223a52; color: #ffce6d; border-radius: 11px; }
+.na-admin .na-admin-panel { padding: clamp(12px, 2vw, 24px); background: #0b233b; border-radius: 14px; }
+.na-admin .na-admin-search { display: flex; gap: 10px; margin-bottom: 18px; }
+.na-admin .na-admin-search label { border: 1px solid #35506a; border-radius: 9px; padding-inline: 12px; width: min(100%, 380px); color: #a8bdd5; }
+.na-admin .na-admin-search input { width: 100%; min-width: 0; min-height: 44px; border: 0; padding: 0; color: #e5f0ff; background: transparent; font: inherit; }
+.na-admin .na-admin-search input::placeholder { color: #b0c3d9; }
+.na-admin button { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-height: 44px; padding: 8px 14px; border: 0; border-radius: 8px; color: #352405; background: #ffce6d; white-space: nowrap; font-weight: 700; }
+.na-admin button:disabled { opacity: .5; cursor: default; }
+.na-admin :focus-visible { outline: 2px solid #ffce6d; outline-offset: 3px; }
+.na-admin .na-admin-count { font-size: 14px; margin: 0 0 10px; color: #b7cae0; }
+.na-admin .na-admin-table-wrap { overflow-x: auto; border: 1px solid #304a64; border-radius: 9px; }
+.na-admin table { width: 100%; min-width: 840px; border-collapse: collapse; text-align: left; font-size: 13px; }
+.na-admin :is(th, td) { padding: 12px; border-bottom: 1px solid #263f58; }
+.na-admin th { background: #17334e; color: #f6d38b; }
+.na-admin td { overflow-wrap: anywhere; }
+.na-admin tbody tr:last-child td { border-bottom: 0; }
+.na-admin tbody tr:nth-child(even) { background: #102940; }
+.na-admin :is(.na-admin-active, .na-admin-disabled) { display: inline-block; padding: 4px 8px; border-radius: 99px; white-space: nowrap; }
+.na-admin .na-admin-active { background: #173a36; color: #b0f3ce; }
+.na-admin .na-admin-disabled { background: #432d3a; color: #ffd1da; }
+.na-admin .na-admin-pages { display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 14px; font-size: 13px; }
+
+@media (max-width: 560px) {
+    .na-admin .na-admin-wrap { width: calc(100% - 24px); padding-top: 14px; }
+    .na-admin .na-admin-search { flex-wrap: wrap; }
+}

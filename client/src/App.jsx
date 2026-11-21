@@ -2,11 +2,35 @@ import { useState, useEffect } from "react";
 import Home from "./home/home.jsx";
 import MovieList from "./movies/MovieList.jsx";
 import MovieDetail from "./movies/MovieDetail.jsx";
+import AuthPage from "./auth/AuthPage.jsx";
+import ProfilePage from "./profile/ProfilePage.jsx";
+import AdminAccounts from "./profile/AdminAccounts.jsx";
 
 // Phân tích URL hash để xác định trang và ID phim tương ứng
 function getPageAndMovieFromHash() {
   const hash = window.location.hash || "";
   const lower = hash.toLowerCase();
+
+  if (lower === "#quan-ly-tai-khoan") {
+    return { page: "admin-accounts", movieId: "" };
+  }
+
+  if (lower === "#tai-khoan") {
+  return { page: "profile", movieId: "" };
+}
+
+  // Trang đăng nhập / đăng ký
+  if (
+    lower === "#dang-nhap" ||
+    lower === "#dang-ky" ||
+    lower === "#login" ||
+    lower === "#register"
+  ) {
+    return {
+      page: "auth",
+      movieId: "",
+    };
+  }
 
   // Chi tiết phim chỉ khi có hash chi tiết hoặc phim/:id
   if (
@@ -118,6 +142,19 @@ function App() {
         el.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }, 120);
+  }
+
+  if (currentPage === "admin-accounts") {
+    return <AdminAccounts />;
+  }
+
+  if (currentPage === "profile") {
+  return <ProfilePage onNavigate={handleNavigate} />;
+}
+
+  // Hiển thị trang đăng nhập / đăng ký
+  if (currentPage === "auth") {
+    return <AuthPage onNavigate={handleNavigate} />;
   }
 
   if (currentPage === "movie-detail") {
