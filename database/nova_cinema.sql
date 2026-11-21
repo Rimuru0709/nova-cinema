@@ -27,6 +27,21 @@ CREATE TABLE IF NOT EXISTS users (
   UNIQUE KEY uq_users_phone (phone)
 ) ENGINE=InnoDB;
 
+-- Phiên đăng nhập. Backend lưu expires_at theo giờ UTC.
+CREATE TABLE IF NOT EXISTS auth_sessions (
+  token_hash BINARY(32) NOT NULL,
+  user_id BIGINT UNSIGNED NOT NULL,
+  expires_at DATETIME NOT NULL,
+
+  PRIMARY KEY (token_hash),
+  KEY idx_auth_sessions_user (user_id),
+  KEY idx_auth_sessions_expiry (expires_at),
+
+  CONSTRAINT fk_auth_sessions_user
+    FOREIGN KEY (user_id) REFERENCES users(id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB;
+
 CREATE TABLE IF NOT EXISTS movies (
   id VARCHAR(64) NOT NULL,
   title VARCHAR(255) NOT NULL,

@@ -2,6 +2,8 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import pool, { testConnection } from './src/config/db.js';
+import authRoutes from "./src/routes/auth.js";
+
 
 const app = express();
 const PORT = Number(process.env.PORT || 5000);
@@ -12,6 +14,7 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.use("/api/auth", authRoutes);
 
 // Helper chuẩn hóa dữ liệu phim trả về cho frontend
 function mapMovie(row) {
