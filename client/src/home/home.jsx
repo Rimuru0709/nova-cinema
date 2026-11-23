@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
+import SeatSelectionModal from "../components/SeatSelectionModal.jsx";
 
 import {
   Menu,
@@ -19,9 +20,17 @@ import {
   Gem,
   Phone,
   Mail,
-  Gift,
   CreditCard,
   Check,
+<<<<<<< HEAD
+=======
+  Tag,
+  BadgeCheck,
+  CheckCircle2,
+  Wallet,
+  QrCode,
+  Volume2,
+>>>>>>> bd0698c (Tính năng lịch chiếu và Chọn suất chiếu, chọn ghế)
 } from "lucide-react";
 
 import useHome from "./useHome.jsx";
@@ -158,6 +167,17 @@ export default function Home() {
     showMembership,
   } = useHome();
 
+<<<<<<< HEAD
+=======
+  const [seatModalShowtimeId, setSeatModalShowtimeId] = useState(null);
+
+  useEffect(() => {
+    if (selectedMovieIdFromParent) {
+      setSelectedMovieId(selectedMovieIdFromParent);
+    }
+  }, [selectedMovieIdFromParent, setSelectedMovieId]);
+
+>>>>>>> bd0698c (Tính năng lịch chiếu và Chọn suất chiếu, chọn ghế)
   return (
     <>
       {/* HEADER */}
@@ -366,7 +386,24 @@ export default function Home() {
 
         {/* ĐẶT VÉ NHANH */}
         <div className="container booking-wrapper" id="dat-ve">
-          <form className="quick-booking" onSubmit={previewBooking}>
+          <form
+            className="quick-booking"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!time) return;
+              const target = showtimes.find((s) => String(s.id) === String(time));
+              if (target) {
+                if (new Date(target.startsAt).getTime() <= Date.now()) {
+                  retryShowtimes();
+                  alert("Suất chiếu đã bắt đầu. Vui lòng chọn một suất chiếu khác.");
+                  return;
+                }
+                setSeatModalShowtimeId(target.id);
+              } else {
+                previewBooking(e);
+              }
+            }}
+          >
             <label className="booking-field">
               <span>
                 <Clapperboard size={15} />
@@ -921,6 +958,14 @@ export default function Home() {
         <Modal title={modal.title} onClose={() => setModal(null)}>
           {modal.content}
         </Modal>
+      )}
+
+      {/* SƠ ĐỒ CHỌN & GIỮ GHẾ (TV3) */}
+      {seatModalShowtimeId && (
+        <SeatSelectionModal
+          showtimeId={seatModalShowtimeId}
+          onClose={() => setSeatModalShowtimeId(null)}
+        />
       )}
     </>
   );
