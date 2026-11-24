@@ -1,5 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap");
 
+.home-admin-preview { display:inline-flex; align-items:center; justify-content:center; gap:6px; flex-shrink:0; padding:8px 10px; border-radius:20px; background:#203650; color:#d3e4ff; font-size:11px; white-space:nowrap; }
+.home-admin-preview:hover { color:#f7c96d; }
+@media(max-width:1400px) { .home-admin-preview { width:34px; height:34px; padding:0; } .home-admin-preview span { display:none; } }
+
 /* =====================================================
    CẤU HÌNH CHUNG
 ===================================================== */

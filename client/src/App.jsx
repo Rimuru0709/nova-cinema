@@ -5,11 +5,39 @@ import MovieDetail from "./movies/MovieDetail.jsx";
 import AuthPage from "./auth/AuthPage.jsx";
 import ProfilePage from "./profile/ProfilePage.jsx";
 import AdminAccounts from "./profile/AdminAccounts.jsx";
+import ComboPage from "./combo/ComboPage.jsx";
+import CheckoutPage from "./checkout/CheckoutPage.jsx";
+import ConfirmationPage from "./confirmation/ConfirmationPage.jsx";
+import TicketsPage from "./tickets/TicketsPage.jsx";
+import AdminPage from "./admin/AdminPage.jsx";
+import AdminAccess from "./admin/AdminAccess.jsx";
 
 // Phân tích URL hash để xác định trang và ID phim tương ứng
 function getPageAndMovieFromHash() {
   const hash = window.location.hash || "";
   const lower = hash.toLowerCase();
+  if (lower === "#admin" || lower === "#admin/") {
+    return { page: "admin", movieId: "" };
+  }
+  if (lower === "#xac-nhan-dat-ve") {
+    return { page: "confirmation", movieId: "" };
+  }
+  if (
+    lower.startsWith("#chi-tiet-ve") ||
+    lower === "#ve-cua-toi" ||
+    lower === "#lich-su-dat-ve" ||
+    lower === "#my-tickets"
+  ) {
+    const parts = hash.split("/");
+    const orderCode = parts.length > 1 ? decodeURIComponent(parts[1]) : "";
+    return { page: "tickets", movieId: "", orderCode };
+  }
+  if (lower === "#thanh-toan" || lower === "#xem-lai-combo") {
+    return { page: "checkout", movieId: "" };
+  }
+  if (lower === "#chon-combo") {
+    return { page: "combo", movieId: "" };
+  }
 
   if (lower === "#quan-ly-tai-khoan") {
     return { page: "admin-accounts", movieId: "" };
@@ -74,6 +102,7 @@ function App() {
   const [currentPage, setCurrentPage] = useState(initial.page);
   const [selectedMovieId, setSelectedMovieId] = useState(initial.movieId || "dune-2");
   const [selectedMovieData, setSelectedMovieData] = useState(null);
+  const [selectedOrderCode, setSelectedOrderCode] = useState(initial.orderCode || "");
 
   // Lắng nghe sự kiện hashchange của trình duyệt
   useEffect(() => {
@@ -83,6 +112,9 @@ function App() {
       if (state.movieId) {
         setSelectedMovieId(state.movieId);
         setSelectedMovieData(null);
+      }
+      if (state.orderCode !== undefined) {
+        setSelectedOrderCode(state.orderCode);
       }
     }
 
@@ -145,7 +177,7 @@ function App() {
   }
 
   if (currentPage === "admin-accounts") {
-    return <AdminAccounts />;
+    return <AdminAccess>{() => <AdminAccounts />}</AdminAccess>;
   }
 
   if (currentPage === "profile") {
@@ -155,6 +187,22 @@ function App() {
   // Hiển thị trang đăng nhập / đăng ký
   if (currentPage === "auth") {
     return <AuthPage onNavigate={handleNavigate} />;
+  }
+
+  if (currentPage === "admin") {
+    return <AdminAccess>{(session) => <AdminPage {...session} />}</AdminAccess>;
+  }
+  if (currentPage === "confirmation") {
+    return <ConfirmationPage />;
+  }
+  if (currentPage === "tickets") {
+    return <TicketsPage targetOrderCode={selectedOrderCode} />;
+  }
+  if (currentPage === "checkout") {
+    return <CheckoutPage />;
+  }
+  if (currentPage === "combo") {
+    return <ComboPage />;
   }
 
   if (currentPage === "movie-detail") {

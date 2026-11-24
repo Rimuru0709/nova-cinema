@@ -150,7 +150,7 @@ async function createOAuthSession(provider, claims, suggestedName) {
         await db.beginTransaction();
         const subject = Buffer.from(claims.sub);
         const [rows] = await db.execute(
-            `SELECT CAST(u.id AS CHAR) AS id, u.status
+            `SELECT CAST(u.id AS CHAR) AS id, u.status, u.role
              FROM oauth_identities i JOIN users u ON u.id = i.user_id
              WHERE i.provider = ? AND i.subject = ? FOR UPDATE`,
             [provider, subject],
@@ -187,7 +187,7 @@ async function createOAuthSession(provider, claims, suggestedName) {
             [tokenHash(token), user.id, SHORT_SESSION],
         );
         await db.commit();
-        return { token };
+        return { token, role: user.role || "user" };
     } catch (error) {
         await db.rollback();
         if (error.code === "ER_DUP_ENTRY") return { error: "existing_email" };
@@ -198,9 +198,9 @@ async function createOAuthSession(provider, claims, suggestedName) {
     }
 }
 
-function oauthReturn(res, origin, error) {
+function oauthReturn(res, origin, error, role) {
     const url = new URL("/", origin);
-    url.hash = error ? "dang-nhap" : "trang-chu";
+    url.hash = error ? "dang-nhap" : role === "admin" ? "admin" : "trang-chu";
     if (error) url.searchParams.set("authError", error);
     return res.redirect(303, url.href);
 }
@@ -393,7 +393,7 @@ function oauthCallback(key) {
             const result = await createOAuthSession(key, claims, suggestedName);
             if (result.error) return oauthReturn(res, origin, result.error);
             res.cookie(COOKIE_NAME, result.token, { ...cookieOptions, secure: origin.protocol === "https:" });
-            return oauthReturn(res, origin);
+            return oauthReturn(res, origin, undefined, result.role);
         } catch (error) {
             console.error("Social sign-in:", key, error.code || error.name);
             return oauthReturn(res, origin, "unavailable");
@@ -547,10 +547,15 @@ async function requireSession(req, res, next) {
 
 function requireAdmin(_req, res, next) {
     if (res.locals.account.role !== "admin") {
-        return fail(res, 403, "Bạn cần quyền quản trị viên để xem danh sách tài khoản.");
+        return fail(res, 403, "Bạn cần quyền quản trị viên để truy cập chức năng này.");
     }
     next();
 }
+
+router.get("/admin/session", requireSession, requireAdmin, (_req, res) => {
+    res.set("Cache-Control", "no-store");
+    return res.json({ success: true, user: publicUser(res.locals.account) });
+});
 
 router.get("/admin/users", requireSession, requireAdmin, async (req, res) => {
     const page = Number(req.query.page ?? 1);

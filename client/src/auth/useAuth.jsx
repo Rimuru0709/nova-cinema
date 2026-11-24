@@ -345,7 +345,7 @@ export default function useAuth({ onNavigate } = {}) {
     }
 
     // ==============================
-    // GỬI FORM — HIỆN TẠI LÀ DEMO
+    // GỬI FORM ĐẾN API TÀI KHOẢN
     // ==============================
 
     async function handleSubmit(event) {
@@ -407,11 +407,8 @@ export default function useAuth({ onNavigate } = {}) {
                 return;
             }
 
-            if (onNavigate) {
-                onNavigate("home", "#trang-chu");
-            } else {
-                window.location.hash = "#trang-chu";
-            }
+            // Quyền lấy từ phiên đăng nhập trên máy chủ, không lấy từ form.
+            window.location.hash = data.user?.role === "admin" ? "#admin" : "#trang-chu";
         } catch (error) {
             setMessage(error.message || "Có lỗi xảy ra. Vui lòng thử lại.");
         }
