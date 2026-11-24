@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   Menu,
@@ -122,6 +122,24 @@ function Modal({ title, children, onClose }) {
 
 // Giao diện trang chủ
 export default function Home({ onNavigate, selectedMovieIdFromParent }) {
+  const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => {
+    let controller;
+    function loadRole() {
+      controller?.abort();
+      const request = new AbortController();
+      controller = request;
+      fetch('/api/auth/me', { credentials: 'same-origin', cache: 'no-store', signal: request.signal })
+        .then(async response => {
+          const data = await response.json().catch(() => null);
+          if (!request.signal.aborted) setIsAdmin(response.ok && data?.user?.role === 'admin');
+        })
+        .catch(() => { if (!request.signal.aborted) setIsAdmin(false); });
+    }
+    loadRole();
+    window.addEventListener('focus', loadRole);
+    return () => { controller?.abort(); window.removeEventListener('focus', loadRole); };
+  }, []);
   const {
     HERO_IMAGE,
     movies,
@@ -220,6 +238,14 @@ export default function Home({ onNavigate, selectedMovieIdFromParent }) {
               Lịch chiếu
             </a>
 
+            <a href="#chon-combo" onClick={closeMenu}>
+              Bắp nước
+            </a>
+
+            <a href="#ve-cua-toi" onClick={closeMenu}>
+              Vé của tôi
+            </a>
+
             <a href="#uu-dai" onClick={closeMenu}>
               Giá vé & Ưu đãi
             </a>
@@ -234,6 +260,10 @@ export default function Home({ onNavigate, selectedMovieIdFromParent }) {
           </nav>
 
           <div className="header-actions">
+            {isAdmin && <a className="home-admin-preview" href="#admin" aria-label="Mở trang quản trị" title="Mở bảng quản trị">
+              <ShieldCheck size={16} />
+              <span>Quản trị</span>
+            </a>}
             <button
               type="button"
               className="icon-button"

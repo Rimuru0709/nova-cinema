@@ -1,5 +1,5 @@
 import {
-    Armchair, ArrowLeft, Award, CalendarDays, ChartNoAxesColumnIncreasing, ChevronDown,
+    Armchair, ArrowLeft, Award, CalendarDays, ChartNoAxesColumnIncreasing, ChevronDown, LayoutDashboard,
     ChevronRight, CreditCard, Crown, Gift, Headphones, Info, LockKeyhole, LogOut, Mail,
     MapPin, Menu, Nfc, Percent, Save, ShieldCheck, Smartphone, Star, Ticket, UserRound, Wine,
 } from "lucide-react";
@@ -74,10 +74,13 @@ export default function ProfilePage({ onNavigate }) {
                     <Brand />
                     <nav className="np-nav" aria-label="Menu chính">{renderLinks()}</nav>
                     <div className="np-header-actions">
-                        {user && (
+                        {isAdmin ? (
+                            <a className="np-gold-chip" href="#admin" aria-label="Mở bảng quản trị NOVA">
+                                <ShieldCheck size={16} /> BẢNG QUẢN TRỊ
+                            </a>
+                        ) : user && (
                             <span className="np-gold-chip">
-                                {isAdmin ? <ShieldCheck size={16} /> : <Crown size={16} />}
-                                {isAdmin ? "QUẢN TRỊ VIÊN" : "NOVA ELITE"}
+                                <Crown size={16} /> NOVA ELITE
                             </span>
                         )}
                         <a className="np-avatar" href="#tai-khoan" aria-label="Hồ sơ của tôi">
@@ -170,10 +173,16 @@ export default function ProfilePage({ onNavigate }) {
 
                             <section className="np-panel np-shortcuts" aria-label="Quản lý tài khoản">
                                 {isAdmin && (
-                                    <a className="np-shortcut-primary" href="#quan-ly-tai-khoan">
+                                    <>
+                                    <a className="np-shortcut-primary" href="#admin">
+                                        <LayoutDashboard size={16} /> <span>Vào bảng quản trị</span>
+                                        <ChevronRight size={13} aria-hidden="true" />
+                                    </a>
+                                    <a href="#quan-ly-tai-khoan">
                                         <ShieldCheck size={16} /> <span>Quản lý tài khoản</span>
                                         <ChevronRight size={13} aria-hidden="true" />
                                     </a>
+                                    </>
                                 )}
                                 <a className={isAdmin ? undefined : "np-shortcut-primary"} href="#thong-tin-ho-so" onClick={scrollWithinProfile}>
                                     <UserRound size={16} /> <span>{isAdmin ? "Thông tin quản trị viên" : "Thông tin cá nhân & Tài khoản"}</span>

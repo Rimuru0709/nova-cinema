@@ -1,0 +1,70 @@
+.confirmation-demo-badge { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; background:#d9ae551a; border:1px solid #d9ae5540; border-radius:20px; color:var(--combo-gold); font-size:10px; white-space:nowrap; }
+.confirmation-success { display:flex; gap:15px; align-items:center; border:1px solid #d9ae5533; border-radius:12px; padding:20px 24px; margin-bottom:28px; background:linear-gradient(105deg,#142b45,#203650); }
+.confirmation-success>svg { color:var(--combo-gold); flex-shrink:0; }
+.confirmation-success>div { flex:1; }
+.confirmation-success strong { color:var(--combo-gold); font-size:14px; }
+.confirmation-success p { color:var(--combo-muted); font-size:12px; margin-top:5px; }
+.confirmation-layout { display:grid; grid-template-columns:minmax(0,1.65fr) minmax(300px,1fr); align-items:start; gap:26px; }
+.confirmation-ticket { background:linear-gradient(130deg,#0c2842,#072039); border:1px solid #afc2d41f; border-radius:15px; overflow:hidden; }
+.confirmation-ticket-top { padding:20px 26px; border-bottom:1px dashed #afc2d437; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; font-size:10px; color:var(--combo-gold); }
+.confirmation-ticket-top>span { display:flex; align-items:center; gap:7px; }
+.confirmation-confirmed { padding:4px 8px; color:#b4e6cc; background:#b4e6cc0c; border-radius:5px; font-size:9px; }
+.confirmation-movie { display:flex; gap:23px; align-items:center; padding:26px; }
+.confirmation-movie>img,.confirmation-poster { width:115px; height:168px; object-fit:cover; border-radius:7px; flex-shrink:0; box-shadow:0 8px 22px #0003; }
+.confirmation-poster { display:grid; place-items:center; color:var(--combo-gold); background:#203650; }
+.confirmation-movie h2 { font-size:24px; line-height:1.35; letter-spacing:-.025em; margin:10px 0; }
+.confirmation-movie p { font-size:11px; color:var(--combo-muted); }
+.confirmation-tags { display:flex; flex-wrap:wrap; gap:5px; }
+.confirmation-tags span { background:#203650; border-radius:4px; font-size:9px; padding:3px 6px; }
+.confirmation-tags span:first-child { color:var(--combo-gold); }
+.confirmation-guest { display:flex; align-items:center; gap:9px; background:#00142a66; border-radius:6px; padding:10px 12px; margin-top:16px; }
+.confirmation-guest svg { color:var(--combo-gold); }
+.confirmation-guest span { font-size:9px; color:var(--combo-muted); }
+.confirmation-guest strong { display:block; color:var(--combo-text); font-size:12px; }
+.confirmation-details { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; padding:0 26px 24px; }
+.confirmation-details>div { display:flex; align-items:flex-start; gap:10px; background:#142b45; padding:15px; border-radius:8px; }
+.confirmation-details svg { flex-shrink:0; color:var(--combo-gold); }
+.confirmation-details span { min-width:0; color:var(--combo-muted); font-size:10px; }
+.confirmation-details strong { display:block; font-size:13px; line-height:1.6; margin-top:4px; color:var(--combo-text); overflow-wrap:anywhere; }
+.confirmation-details small { font-size:10px; display:block; margin-top:3px; }
+.confirmation-details .confirmation-seats { display:flex; flex-wrap:wrap; gap:5px; }
+.confirmation-seats b { color:var(--combo-gold); background:#d9ae5517; border-radius:4px; padding:1px 6px; }
+.confirmation-food,.confirmation-contact { margin:0 26px 22px; padding:18px; border:1px solid #afc2d419; border-radius:8px; background:#00142a66; }
+.confirmation-food h3,.confirmation-contact h3 { display:flex; align-items:center; gap:9px; color:var(--combo-gold); font-size:13px; margin-bottom:10px; }
+.confirmation-food>p { font-size:12px; color:var(--combo-muted); }
+.confirmation-line { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:10px 0; border-top:1px solid #afc2d419; font-size:12px; }
+.confirmation-line strong { white-space:nowrap; }
+.confirmation-line small { display:block; font-size:10px; color:var(--combo-muted); margin-top:4px; }
+.confirmation-contact>span { display:flex; gap:15px; justify-content:space-between; color:var(--combo-muted); font-size:11px; margin:8px 0; }
+.confirmation-contact strong { color:var(--combo-text); overflow-wrap:anywhere; min-width:0; }
+.confirmation-contact>p { color:var(--combo-muted); font-size:10px; margin-top:12px; }
+.confirmation-ticket-code { display:flex; align-items:center; gap:14px; padding:23px 26px; border-top:1px dashed #d9ae5566; background:#00142a80; }
+.confirmation-ticket-code>svg { color:var(--combo-gold); flex-shrink:0; }
+.confirmation-ticket-code>div { min-width:0; }
+.confirmation-ticket-code small { color:var(--combo-gold); font-size:9px; letter-spacing:.12em; }
+.confirmation-ticket-code strong { display:block; font-size:12px; font-family:monospace; overflow-wrap:anywhere; margin:4px 0; }
+.confirmation-ticket-code p { font-size:10px; color:var(--combo-muted); }
+.confirmation-summary { padding:26px; border-top:3px solid var(--combo-gold); }
+.confirmation-summary h2 { display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:20px; margin:8px 0 20px; }
+.confirmation-summary h2 svg { color:var(--combo-gold); }
+.confirmation-order-code { padding:15px; background:#00142a99; border-radius:8px; }
+.confirmation-order-code>span { color:var(--combo-muted); font-size:11px; }
+.confirmation-order-code strong { display:block; font-family:monospace; color:var(--combo-gold); font-size:14px; overflow-wrap:anywhere; margin:7px 0; user-select:all; }
+.confirmation-order-code button { background:none; color:var(--combo-muted); padding:4px 0; display:flex; align-items:center; gap:6px; font-size:10px; }
+.confirmation-payment { margin:18px 0; }
+.confirmation-payment>div { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; font-size:11px; margin:12px 0; }
+.confirmation-payment dt { display:flex; align-items:center; gap:5px; color:var(--combo-muted); }
+.confirmation-payment dd { text-align:right; margin:0; }
+.confirmation-status { color:#b4e6cc; }
+.confirmation-home,.confirmation-retry { display:flex; justify-content:center; align-items:center; gap:7px; width:100%; margin-top:18px; color:var(--combo-muted); font-size:12px; background:none; }
+.confirmation-page .confirmation-retry { font-size:11px; }
+.confirmation-notice { color:var(--combo-gold); font-size:11px; margin-top:12px!important; }
+.confirmation-footnote { display:flex; gap:12px; align-items:flex-start; margin-top:26px; padding:20px; background:#07203a; border-radius:9px; color:var(--combo-muted); font-size:12px; }
+.confirmation-footnote svg { flex-shrink:0; color:var(--combo-gold); }
+.confirmation-empty { max-width:650px; margin:40px auto; text-align:center; padding:40px; }
+.confirmation-empty>svg { color:var(--combo-gold); margin:auto; }
+.confirmation-empty p { font-size:13px; color:var(--combo-muted); margin:20px 0; }
+.confirmation-empty .combo-primary { font-size:13px; }
+@media(max-width:1000px) { .confirmation-layout { grid-template-columns:minmax(0,1fr) 310px; gap:18px; } .confirmation-summary { padding:20px; } .confirmation-movie { gap:15px; padding:20px; } .confirmation-movie h2 { font-size:19px; } .confirmation-movie>img,.confirmation-poster { width:85px; height:128px; } .confirmation-details { padding:0 20px 20px; } .confirmation-food,.confirmation-contact { margin-left:20px; margin-right:20px; } }
+@media(max-width:760px) { .confirmation-layout { grid-template-columns:1fr; } .confirmation-success { padding:18px; align-items:flex-start; } .confirmation-success>.confirmation-demo-badge { display:none; } .confirmation-header { flex-wrap:wrap; } .confirmation-movie h2 { font-size:22px; } }
+@media(max-width:420px) { .confirmation-ticket-top { padding:16px; } .confirmation-movie { padding:16px; gap:12px; align-items:flex-start; } .confirmation-movie h2 { font-size:17px; } .confirmation-movie>img,.confirmation-poster { width:75px; height:113px; } .confirmation-details { grid-template-columns:1fr; padding:0 16px 16px; } .confirmation-food,.confirmation-contact { margin:0 16px 16px; padding:13px; } .confirmation-ticket-code { padding:20px 16px; } .confirmation-contact>span { flex-direction:column; gap:3px; } }
