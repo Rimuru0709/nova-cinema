@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import Home from "./home/home.jsx";
 import MovieList from "./movies/MovieList.jsx";
 import MovieDetail from "./movies/MovieDetail.jsx";
@@ -185,7 +186,10 @@ function App() {
       onSelectShowtime={handleSelectShowtime}
     />
   );
->>>>>>> bd0698c (Tính năng lịch chiếu và Chọn suất chiếu, chọn ghế)
+bd0698c (Tính năng lịch chiếu và Chọn suất chiếu, chọn ghế)
+    />
+  );
+main
 }
 
 export default App;

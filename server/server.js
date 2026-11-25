@@ -1,47 +1,66 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-<<<<<<< HEAD
-=======
 import pool, { testConnection } from './src/config/db.js';
-import showtimeRoutes from './src/routes/showtimeRoutes.js';
-import bookingRoutes from './src/routes/bookingRoutes.js';
-import { cleanExpiredHolds, ensureDefaultUser } from './src/services/seatHoldService.js';
->>>>>>> bd0698c (Tính năng lịch chiếu và Chọn suất chiếu, chọn ghế)
+import authRoutes from "./src/routes/auth.js";
+
 
 const app = express();
-
 const PORT = Number(process.env.PORT || 5000);
 
-// Cho phép React gọi backend
+// Cấu hình CORS cho phép client gọi API
 app.use(cors({
     origin: process.env.CLIENT_URL || 'http://localhost:5173'
 }));
 
-// Đọc dữ liệu JSON từ frontend
 app.use(express.json());
+app.use("/api/auth", authRoutes);
 
-// Đường dẫn mặc định
-app.get('/', (req, res) => {
-    res.json({
-        message: 'Chào mừng đến với API Nova Cinema.'
-    });
+// Helper chuẩn hóa dữ liệu phim trả về cho frontend
+function mapMovie(row) {
+    const releaseDateStr = row.release_date instanceof Date
+        ? row.release_date.toISOString().slice(0, 10)
+        : String(row.release_date || '').slice(0, 10);
+
+    return {
+        id: row.id,
+        title: row.title,
+        shortTitle: row.short_title,
+        genre: row.genre,
+        duration: row.duration_minutes,
+        age: row.age_rating,
+        rating: row.rating !== null ? Number(row.rating) : null,
+        reviews: row.review_count,
+        format: row.format_label,
+        country: row.country,
+        imax: Boolean(row.imax),
+        image: row.poster_url,
+        description: row.description,
+        releaseDate: releaseDateStr,
+        status: row.status,
+        featuredOrder: row.featured_order,
+        trailerUrl: row.trailer_url
+    };
+}
+
+// 1. Kiểm tra trạng thái server & MySQL
+app.get('/api/health', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT 1 + 1 AS ok');
+        res.json({
+            success: true,
+            message: 'Server Nova Cinema và MySQL đang hoạt động tốt.',
+            db: rows.length > 0
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Lỗi kết nối MySQL.',
+            error: error.message
+        });
+    }
 });
 
-<<<<<<< HEAD
-// Kiểm tra server
-app.get('/api/health', (req, res) => {
-    res.json({
-        success: true,
-        message: 'Server Nova Cinema đang hoạt động.'
-    });
-});
-
-// Khởi động server
-app.listen(PORT, () => {
-    console.log(`Server đang chạy tại http://localhost:${PORT}`);
-});
-=======
 // 2. Trang chủ: Catalog gồm danh sách phim và danh sách rạp
 app.get('/api/catalog', async (req, res) => {
     try {
@@ -106,6 +125,19 @@ app.get('/api/movies/:id', async (req, res) => {
     }
 });
 
+// Kiểm tra server
+app.get('/api/health', (req, res) => {
+    res.json({
+        success: true,
+        message: 'Server Nova Cinema đang hoạt động.'
+    });
+});
+
+// Khởi động server
+app.listen(PORT, () => {
+    console.log(`Server đang chạy tại http://localhost:${PORT}`);
+});
+
 // 5. Danh sách rạp
 app.get('/api/cinemas', async (req, res) => {
     try {
@@ -118,13 +150,64 @@ app.get('/api/cinemas', async (req, res) => {
     }
 });
 
-// 6. Tuyến đường quản lý lịch chiếu & sơ đồ ghế (TV3)
-app.use('/api/showtimes', showtimeRoutes);
+// 6. Lấy lịch chiếu theo phim, rạp và ngày
+app.get('/api/showtimes', async (req, res) => {
+    try {
+        const { movieId, cinemaId, date } = req.query;
+        if (!movieId || !cinemaId || !date) {
+            return res.status(400).json({ success: false, message: 'Vui lòng cung cấp movieId, cinemaId và date.' });
+        }
 
-// 7. Tuyến đường quản lý giữ ghế (TV3) & đơn đặt vé / thanh toán (TV4)
-app.use('/api/bookings', bookingRoutes);
+        const query = `
+            SELECT 
+                s.id,
+                s.movie_id,
+                s.room_id,
+                s.starts_at,
+                s.ends_at,
+                s.base_price,
+                s.format,
+                c.name AS cinema_name,
+                r.name AS room_name
+            FROM showtimes s
+            JOIN rooms r ON s.room_id = r.id
+            JOIN cinemas c ON r.cinema_id = c.id
+            WHERE s.movie_id = ?
+              AND c.id = ?
+              AND DATE(s.starts_at) = ?
+              AND s.status = 'scheduled'
+              AND s.starts_at > NOW()
+            ORDER BY s.starts_at ASC
+        `;
 
-// 8. Danh sách sản phẩm (bắp nước, combo)
+        const [rows] = await pool.query(query, [movieId, cinemaId, date]);
+
+        const data = rows.map(row => {
+            const startsAt = new Date(row.starts_at);
+            const hours = String(startsAt.getHours()).padStart(2, '0');
+            const minutes = String(startsAt.getMinutes()).padStart(2, '0');
+
+            return {
+                id: row.id,
+                movieId: row.movie_id,
+                cinemaName: row.cinema_name,
+                roomName: row.room_name,
+                format: row.format,
+                startsAt: row.starts_at,
+                date: date,
+                time: `${hours}:${minutes}`,
+                price: Number(row.base_price)
+            };
+        });
+
+        res.json({ success: true, data });
+    } catch (error) {
+        console.error('Error fetching showtimes:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// 7. Danh sách sản phẩm (bắp nước, combo)
 app.get('/api/products', async (req, res) => {
     try {
         const { category } = req.query;
@@ -159,16 +242,4 @@ app.get('/api/products', async (req, res) => {
 app.listen(PORT, async () => {
     console.log(`🚀 Server Nova Cinema đang chạy tại http://localhost:${PORT}`);
     await testConnection();
-    await ensureDefaultUser();
-    await cleanExpiredHolds();
-
-    // Tự động giải phóng ghế hết hạn sau mỗi 10 giây
-    setInterval(async () => {
-        try {
-            await cleanExpiredHolds();
-        } catch (err) {
-            console.error('Lỗi định kỳ dọn dẹp ghế hết hạn:', err);
-        }
-    }, 10000);
 });
->>>>>>> bd0698c (Tính năng lịch chiếu và Chọn suất chiếu, chọn ghế)

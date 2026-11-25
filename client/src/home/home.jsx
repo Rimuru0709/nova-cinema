@@ -22,21 +22,34 @@ import {
   Mail,
   CreditCard,
   Check,
+  Sparkles,
+  ShieldCheck,
+  Tag,
+  ExternalLink,
+  BadgeCheck,
+  CheckCircle2,
+  Wallet,
+  QrCode,
+  Volume2,
 } from "lucide-react";
 
 import useHome from "./useHome.jsx";
 import "./home.css";
 
-// Logo
-function Brand() {
+// Logo Nova Cinema
+function Brand({ className = "" }) {
   return (
     <a
-      className="brand"
+      className={`brand ${className}`}
       href="#trang-chu"
       aria-label="Nova Cinema trang chủ"
     >
       <span className="brand-symbol">
-        <Clapperboard size={25} />
+        <img
+          src="/nova-icon.png"
+          alt="Nova Cinema Logo"
+          className="brand-icon-img"
+        />
       </span>
 
       <span className="brand-text">
@@ -108,7 +121,25 @@ function Modal({ title, children, onClose }) {
 }
 
 // Giao diện trang chủ
-export default function Home() {
+export default function Home({ onNavigate, selectedMovieIdFromParent }) {
+  const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => {
+    let controller;
+    function loadRole() {
+      controller?.abort();
+      const request = new AbortController();
+      controller = request;
+      fetch('/api/auth/me', { credentials: 'same-origin', cache: 'no-store', signal: request.signal })
+        .then(async response => {
+          const data = await response.json().catch(() => null);
+          if (!request.signal.aborted) setIsAdmin(response.ok && data?.user?.role === 'admin');
+        })
+        .catch(() => { if (!request.signal.aborted) setIsAdmin(false); });
+    }
+    loadRole();
+    window.addEventListener('focus', loadRole);
+    return () => { controller?.abort(); window.removeEventListener('focus', loadRole); };
+  }, []);
   const {
     HERO_IMAGE,
     movies,
@@ -120,7 +151,9 @@ export default function Home() {
     heroMovies,
 
     getToday,
-    getFutureDate,
+    formatDate,
+    formatReviewCount,
+    getDaysUntil,
     trailerUrl,
     hideBrokenImage,
 
@@ -148,6 +181,12 @@ export default function Home() {
 
     featuredMovie,
     visibleMovies,
+    catalogLoading,
+    catalogError,
+    retryCatalog,
+    showtimesLoading,
+    showtimesError,
+    retryShowtimes,
 
     closeMenu,
     chooseMovie,
@@ -157,6 +196,12 @@ export default function Home() {
     showNotifications,
     showMembership,
   } = useHome();
+
+  useEffect(() => {
+    if (selectedMovieIdFromParent) {
+      setSelectedMovieId(selectedMovieIdFromParent);
+    }
+  }, [selectedMovieIdFromParent, setSelectedMovieId]);
 
   return (
     <>
@@ -174,12 +219,31 @@ export default function Home() {
               Trang chủ
             </a>
 
-            <a href="#phim-dang-chieu" onClick={closeMenu}>
+            <a
+              href="#phim"
+              onClick={(e) => {
+                e.preventDefault();
+                closeMenu();
+                if (onNavigate) {
+                  onNavigate("movies");
+                } else {
+                  window.location.hash = "#phim";
+                }
+              }}
+            >
               Phim
             </a>
 
             <a href="#dat-ve" onClick={closeMenu}>
               Lịch chiếu
+            </a>
+
+            <a href="#chon-combo" onClick={closeMenu}>
+              Bắp nước
+            </a>
+
+            <a href="#ve-cua-toi" onClick={closeMenu}>
+              Vé của tôi
             </a>
 
             <a href="#uu-dai" onClick={closeMenu}>
@@ -196,6 +260,10 @@ export default function Home() {
           </nav>
 
           <div className="header-actions">
+            {isAdmin && <a className="home-admin-preview" href="#admin" aria-label="Mở trang quản trị" title="Mở bảng quản trị">
+              <ShieldCheck size={16} />
+              <span>Quản trị</span>
+            </a>}
             <button
               type="button"
               className="icon-button"
@@ -230,14 +298,13 @@ export default function Home() {
               GOLD TIER
             </a>
 
-            <button
-              type="button"
+            <a
               className="avatar-button"
-              aria-label="Xem thông tin hội viên"
-              onClick={showMembership}
+              href="#tai-khoan"
+              aria-label="Mở tài khoản cá nhân"
             >
               <UserRound size={18} />
-            </button>
+            </a>
 
             <button
               type="button"
@@ -286,11 +353,10 @@ export default function Home() {
           <div
             className="hero-background"
             style={{
-              backgroundImage: `url("${
-                featuredMovie.id === "dune"
-                  ? HERO_IMAGE
-                  : featuredMovie.image
-              }")`,
+              backgroundImage: `url("${featuredMovie?.id === "dune"
+                ? HERO_IMAGE
+                : featuredMovie?.image || HERO_IMAGE
+                }")`,
             }}
           />
 
@@ -298,68 +364,89 @@ export default function Home() {
 
           <div className="container hero-inner">
             <div className="hero-content">
-              <div className="hero-badges">
-                <span className="badge badge-gold">
-                  <Gem size={13} />
-                  ĐIỆN ẢNH ĐỈNH CAO
-                </span>
+              {featuredMovie ? (
+                <>
+                  <div className="hero-badges">
+                    <span className="badge badge-gold badge-pill">
+                      <Star size={12} fill="currentColor" />
+                      KHỞI CHIẾU HÔM NAY
+                    </span>
 
-                <span className="badge badge-dark">
-                  <Monitor size={13} />
-                  Độc quyền IMAX Laser
-                </span>
+                    <span className="badge badge-dark badge-pill">
+                      <Monitor size={12} />
+                      {featuredMovie.imax ? "Độc quyền IMAX Laser" : featuredMovie.format || "Độc quyền IMAX Laser"}
+                    </span>
 
-                <span className="badge badge-dark">
-                  {featuredMovie.age} · {featuredMovie.duration} phút
-                </span>
-              </div>
+                    <span className="badge badge-dark badge-pill">
+                      <Volume2 size={12} />
+                      Âm thanh Dolby Atmos
+                    </span>
 
-              <p className="eyebrow">SIÊU PHẨM TRÊN MÀN ẢNH RỘNG</p>
+                    <span className="badge badge-dark badge-pill">
+                      {featuredMovie.age} • {featuredMovie.duration} phút
+                    </span>
+                  </div>
 
-              <h1>{featuredMovie.title}</h1>
+                  <p className="eyebrow hero-eyebrow">SIÊU PHẨM MÀN ẢNH RỘNG 2026</p>
 
-              <p className="hero-description">
-                {featuredMovie.description}
-              </p>
+                  <h1 className="hero-title">{featuredMovie.title}</h1>
 
-              <div className="hero-buttons">
-                <button
-                  className="button button-gold"
-                  type="button"
-                  onClick={() => chooseMovie(featuredMovie)}
-                >
-                  <Ticket size={18} />
-                  ĐẶT VÉ NGAY
-                </button>
+                  <p className="hero-description">
+                    {featuredMovie.description}
+                  </p>
 
-                <a
-                  className="button button-glass"
-                  href={trailerUrl(featuredMovie.title)}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <Play size={17} />
-                  Xem trailer
-                </a>
-              </div>
+                  <div className="hero-action-row">
+                    <button
+                      className="hero-cta-btn"
+                      type="button"
+                      onClick={() => chooseMovie(featuredMovie)}
+                    >
+                      <Ticket size={15} />
+                      <span>ĐẶT VÉ NGAY</span>
+                    </button>
 
-              <div
-                className="hero-pagination"
-                aria-label="Chọn banner phim"
-              >
-                {heroMovies.map((movie, index) => (
-                  <button
-                    key={movie.id}
-                    type="button"
-                    className={heroIndex === index ? "is-active" : ""}
-                    aria-pressed={heroIndex === index}
-                    onClick={() => setHeroIndex(index)}
-                  >
-                    <span>0{index + 1}</span>
-                    {movie.shortTitle}
-                  </button>
-                ))}
-              </div>
+                    <a
+                      className="hero-trailer-btn"
+                      href={featuredMovie.trailerUrl || trailerUrl(featuredMovie.title)}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <span className="trailer-play-circle">
+                        <Play size={9} fill="#0b1e33" color="#0b1e33" className="play-triangle" />
+                      </span>
+                      <span>Xem Trailer</span>
+                    </a>
+
+                    <div
+                      className="hero-pagination-capsule"
+                      aria-label="Chọn banner phim"
+                    >
+                      {heroMovies.map((movie, index) => (
+                        <button
+                          key={movie.id}
+                          type="button"
+                          className={`hero-capsule-item ${heroIndex === index ? "is-active" : ""}`}
+                          aria-pressed={heroIndex === index}
+                          onClick={() => setHeroIndex(index)}
+                        >
+                          0{index + 1} • {movie.shortTitle || movie.title}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="catalog-state" role={catalogError ? "alert" : "status"}>
+                  <p className="eyebrow">NOVA CINEMA</p>
+                  <h1>{catalogLoading ? "Đang tải phim…" : catalogError ? "Chưa tải được danh sách phim" : "Hẹn bạn tại NOVA Cinema"}</h1>
+                  <p className="hero-description">
+                    {catalogLoading ? "Vui lòng chờ trong giây lát." : catalogError || "Các bộ phim đang được cập nhật. Vui lòng quay lại sau."}
+                  </p>
+                  {!catalogLoading && (
+                    <button className="button button-gold" type="button" onClick={retryCatalog}>Tải lại danh sách phim</button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -385,84 +472,105 @@ export default function Home() {
             }}
           >
             <label className="booking-field">
-              <span>
-                <Clapperboard size={15} />
-                PHIM
+              <span className="booking-label">
+                <Clapperboard size={14} />
+                1. CHỌN PHIM
               </span>
 
               <select
                 value={selectedMovieId}
+                disabled={catalogLoading || !movies.length}
                 onChange={(event) =>
                   setSelectedMovieId(event.target.value)
                 }
               >
+                {!movies.length && <option value="">Chưa có phim</option>}
                 {movies.map((movie) => (
                   <option key={movie.id} value={movie.id}>
-                    {movie.shortTitle}
+                    {movie.title}
                   </option>
                 ))}
               </select>
             </label>
 
             <label className="booking-field">
-              <span>
-                <MapPin size={15} />
-                CỤM RẠP
+              <span className="booking-label">
+                <MapPin size={14} />
+                2. CHỌN CỤM RẠP
               </span>
 
               <select
                 value={cinema}
+                disabled={catalogLoading || !cinemas.length}
                 onChange={(event) => setCinema(event.target.value)}
               >
+                {!cinemas.length && <option value="">Chưa có rạp</option>}
                 {cinemas.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
+                  <option key={item.id} value={String(item.id)}>
+                    {item.name} ({item.id === 1 ? "TP. HCM" : "Hà Nội"})
                   </option>
                 ))}
               </select>
             </label>
 
             <label className="booking-field">
-              <span>
-                <CalendarDays size={15} />
-                NGÀY CHIẾU
+              <span className="booking-label">
+                <CalendarDays size={14} />
+                3. CHỌN NGÀY CHIẾU
               </span>
 
-              <input
-                type="date"
-                min={getToday()}
-                value={date}
-                onChange={(event) => setDate(event.target.value)}
-                required
-              />
+              <div className="booking-date-container">
+                <span className="booking-date-text">
+                  {date === getToday() ? `Hôm nay • ${formatDate(date)}` : formatDate(date)}
+                </span>
+                <input
+                  type="date"
+                  min={getToday()}
+                  value={date}
+                  onChange={(event) => setDate(event.target.value)}
+                  required
+                  className="booking-date-hidden"
+                />
+              </div>
             </label>
 
             <label className="booking-field">
-              <span>
-                <Clock size={15} />
-                SUẤT CHIẾU
+              <span className="booking-label">
+                <Clock size={14} />
+                4. CHỌN SUẤT CHIẾU
               </span>
 
               <select
                 value={time}
+                disabled={showtimesLoading || !showtimes.length}
                 onChange={(event) => setTime(event.target.value)}
               >
+                {!showtimes.length && <option value="">{showtimesLoading ? "Đang tải suất chiếu…" : "Chưa có suất chiếu"}</option>}
                 {showtimes.map((item) => (
-                  <option key={item} value={item}>
-                    {item} · IMAX 01
+                  <option key={item.id} value={String(item.id)}>
+                    {item.time} • {item.format || 'IMAX'} {item.roomName}
                   </option>
                 ))}
               </select>
             </label>
 
             <button
-              className="button button-gold booking-submit"
+              className="button button-gold booking-submit-btn"
               type="submit"
+              disabled={!time || showtimesLoading || Boolean(showtimesError)}
             >
-              CHỌN SUẤT
+              MUA VÉ NGAY
               <ArrowRight size={17} />
             </button>
           </form>
+          <div className="booking-status" aria-live="polite">
+            {showtimesError ? (
+              <>
+                <span>{showtimesError}</span>
+                <button type="button" className="text-link" onClick={retryShowtimes}>Thử lại</button>
+              </>
+            ) : showtimesLoading ? "Đang tải lịch chiếu…" : selectedMovieId && cinema && date && !showtimes.length ? "Không có suất chiếu còn mở cho lựa chọn này. Bạn có thể chọn ngày, rạp hoặc phim khác." : null}
+          </div>
         </div>
 
         {/* PHIM ĐANG CHIẾU */}
@@ -482,9 +590,8 @@ export default function Home() {
                   <button
                     key={filter.id}
                     type="button"
-                    className={`filter-button ${
-                      activeFilter === filter.id ? "is-active" : ""
-                    }`}
+                    className={`filter-button ${activeFilter === filter.id ? "is-active" : ""
+                      }`}
                     aria-pressed={activeFilter === filter.id}
                     onClick={() => setActiveFilter(filter.id)}
                   >
@@ -504,7 +611,14 @@ export default function Home() {
               </div>
             )}
 
-            {visibleMovies.length > 0 ? (
+            {catalogLoading ? (
+              <p className="data-message" role="status">Đang tải danh sách phim…</p>
+            ) : catalogError ? (
+              <div className="empty-state">
+                <p>{catalogError}</p>
+                <button className="button button-gold" type="button" onClick={retryCatalog}>Thử lại</button>
+              </div>
+            ) : visibleMovies.length > 0 ? (
               <div className="movie-grid">
                 {visibleMovies.map((movie) => (
                   <article className="movie-card" key={movie.id}>
@@ -521,9 +635,14 @@ export default function Home() {
                       />
 
                       <span
-                        className={`age-badge ${
-                          movie.age === "T18" ? "age-red" : ""
-                        }`}
+                        className={`age-badge ${movie.age === "T18"
+                          ? "age-red"
+                          : movie.age === "T16"
+                            ? "age-gold"
+                            : movie.age === "T13"
+                              ? "age-orange"
+                              : "age-green"
+                          }`}
                       >
                         {movie.age}
                       </span>
@@ -534,8 +653,8 @@ export default function Home() {
 
                       <div className="rating-badge">
                         <Star size={13} fill="currentColor" />
-                        <strong>{movie.rating}</strong>
-                        <span>({movie.reviews})</span>
+                        <strong>{movie.rating ? Number(movie.rating).toFixed(1) : "9.0"}</strong>
+                        <span>({formatReviewCount(movie.reviews)})</span>
                       </div>
                     </div>
 
@@ -564,7 +683,13 @@ export default function Home() {
                         <button
                           className="button button-dark"
                           type="button"
-                          onClick={() => showMovieDetail(movie)}
+                          onClick={() => {
+                            if (onNavigate) {
+                              onNavigate("movie-detail", movie.id, movie);
+                            } else {
+                              showMovieDetail(movie);
+                            }
+                          }}
                         >
                           Chi tiết
                         </button>
@@ -577,9 +702,9 @@ export default function Home() {
               <div className="empty-state">
                 <Search size={32} />
 
-                <h3>Chưa tìm thấy phim phù hợp</h3>
+                <h3>{movies.length ? "Chưa tìm thấy phim phù hợp" : "Chưa có phim đang chiếu"}</h3>
 
-                <p>Thử đổi từ khóa hoặc chọn một nhóm phim khác.</p>
+                <p>{movies.length ? "Thử đổi từ khóa hoặc chọn một nhóm phim khác." : "Danh sách phim sẽ được cập nhật sớm."}</p>
 
                 <button
                   className="button button-gold"
@@ -605,21 +730,22 @@ export default function Home() {
             <div className="section-heading">
               <div>
                 <p className="eyebrow">
-                  LÊN LỊCH CHO TRẢI NGHIỆM TIẾP THEO
+                  LỊCH RA MẮT SẮP TỚI
                 </p>
 
                 <h2>Phim Sắp Khởi Chiếu</h2>
               </div>
 
-              <span className="text-link">
-                Những câu chuyện đáng mong chờ
+              <a href="#phim-sap-chieu" className="text-link">
+                Xem tất cả phim sắp chiếu
                 <ArrowRight size={16} />
-              </span>
+              </a>
             </div>
 
             <div className="upcoming-grid">
               {upcomingMovies.map((movie) => {
                 const interested = interestedMovies.includes(movie.id);
+                const daysLeft = getDaysUntil(movie.releaseDate);
 
                 return (
                   <article className="upcoming-card" key={movie.id}>
@@ -633,11 +759,11 @@ export default function Home() {
 
                       <span className="countdown-badge">
                         <Clock size={13} />
-                        Lịch mẫu: còn {movie.days} ngày
+                        {daysLeft ? `Khởi chiếu sau ${String(daysLeft).padStart(2, "0")} ngày` : "Sắp khởi chiếu"}
                       </span>
 
                       <span className="release-date">
-                        {getFutureDate(movie.days)}
+                        {formatDate(movie.releaseDate)}
                       </span>
                     </div>
 
@@ -652,9 +778,8 @@ export default function Home() {
 
                       <div className="upcoming-actions">
                         <button
-                          className={`button button-dark ${
-                            interested ? "is-following" : ""
-                          }`}
+                          className={`button button-dark ${interested ? "is-following" : ""
+                            }`}
                           type="button"
                           aria-pressed={interested}
                           onClick={() => toggleInterest(movie.id)}
@@ -665,12 +790,12 @@ export default function Home() {
                             <Bell size={15} />
                           )}
 
-                          {interested ? "Đã theo dõi" : "Theo dõi phim"}
+                          {interested ? "Đã theo dõi" : "Nhận thông báo"}
                         </button>
 
                         <a
                           className="icon-button"
-                          href={trailerUrl(movie.title)}
+                          href={movie.trailerUrl || trailerUrl(movie.title)}
                           target="_blank"
                           rel="noreferrer"
                           aria-label={`Tìm trailer ${movie.title}`}
@@ -683,6 +808,9 @@ export default function Home() {
                 );
               })}
             </div>
+            {!catalogLoading && !catalogError && !upcomingMovies.length && (
+              <p className="data-message">Chưa có phim sắp chiếu. Vui lòng quay lại sau.</p>
+            )}
           </div>
         </section>
 
@@ -701,9 +829,9 @@ export default function Home() {
               <h2>Trải Nghiệm Thượng Lưu Tại NOVA Cinema</h2>
 
               <p>
-                Mỗi suất chiếu là một hành trình thưởng thức nghệ thuật
-                đỉnh cao, nơi công nghệ tiên tiến kết hợp cùng không
-                gian và dịch vụ đầy tinh tế.
+                Mỗi suất chiếu tại NOVA Cinema là một hành trình thưởng thức nghệ thuật
+                đỉnh cao, nơi công nghệ tối tân hội tụ cùng phong cách phục vụ chuẩn khách
+                sạn 5 sao.
               </p>
             </div>
 
@@ -711,7 +839,7 @@ export default function Home() {
               {experiences.map((item) => (
                 <article className="experience-card" key={item.title}>
                   <div className="experience-icon">
-                    <item.icon size={26} />
+                    <item.icon size={22} />
                   </div>
 
                   <p className="experience-eyebrow">{item.eyebrow}</p>
@@ -730,8 +858,8 @@ export default function Home() {
                       })
                     }
                   >
-                    {item.note}
-                    <ArrowRight size={16} />
+                    <span>{item.note}</span>
+                    <CheckCircle2 size={18} />
                   </button>
                 </article>
               ))}
@@ -746,57 +874,55 @@ export default function Home() {
               <div className="membership-copy">
                 <div className="membership-topline">
                   <span className="badge badge-gold">
-                    ĐẶC QUYỀN HỘI VIÊN
+                    ĐẶC QUYỀN HỘI VIÊN 2026
                   </span>
 
                   <span>NOVA Elite Membership</span>
                 </div>
 
                 <h2>
-                  Gia Nhập <span>NOVA Elite Club</span>
-                  <br />
+                  Gia Nhập <span>NOVA Elite Club</span> —<br />
                   Thăng Hạng Phong Cách Điện Ảnh
                 </h2>
 
                 <p>
-                  Khám phá ưu đãi dành cho hội viên, tích điểm cho mỗi
-                  trải nghiệm và tận hưởng những đặc quyền tại NOVA
-                  Cinema.
+                  Tận hưởng ưu đãi đặc quyền giảm 20% khi thanh toán bằng thẻ
+                  Techcombank Priority và Vietcombank Signature. Tích lũy 10%
+                  điểm thưởng cho mỗi giao dịch vé và dịch vụ ẩm thực tại rạp.
                 </p>
 
                 <div className="membership-benefits">
                   <span>
-                    <Ticket size={17} />
-                    Ưu đãi vé xem phim
+                    <Tag size={17} />
+                    Ưu đãi 20% F&B & Vé
                   </span>
 
                   <span>
-                    <Gift size={17} />
-                    Quà tặng hội viên
+                    <Ticket size={17} />
+                    Đổi vé VIP miễn phí
                   </span>
 
                   <span>
                     <Crown size={17} />
-                    Đặc quyền Gold Lounge
+                    Ưu tiên phục vụ Lounge
                   </span>
                 </div>
 
                 <div className="membership-buttons">
-                  <button
-                    type="button"
+                  <a
                     className="button button-gold"
-                    onClick={showMembership}
+                    href="#dang-ky"
+                    onClick={closeMenu}
                   >
-                    KHÁM PHÁ THÀNH VIÊN VIP
-                    <ArrowRight size={16} />
-                  </button>
+                    ĐĂNG KÝ THÀNH VIÊN VIP
+                  </a>
 
                   <button
                     type="button"
                     className="button button-dark"
                     onClick={showMembership}
                   >
-                    Xem chi tiết ưu đãi
+                    Xem chi tiết ưu đãi hội viên
                   </button>
                 </div>
               </div>
@@ -808,8 +934,8 @@ export default function Home() {
                   </span>
 
                   <div>
-                    <h3>Đối tác thanh toán</h3>
-                    <p>Khám phá chương trình ưu đãi theo kỳ</p>
+                    <h3>Techcombank Priority</h3>
+                    <p>Giảm ngay 20% mỗi cuối tuần + IMAX</p>
                   </div>
 
                   <span className="offer-tag">HOT</span>
@@ -817,12 +943,12 @@ export default function Home() {
 
                 <div className="offer-card">
                   <span className="offer-icon">
-                    <Gift size={22} />
+                    <CreditCard size={22} />
                   </span>
 
                   <div>
-                    <h3>Quà tặng thành viên</h3>
-                    <p>Voucher dành cho trải nghiệm tiếp theo</p>
+                    <h3>Vietcombank Signature</h3>
+                    <p>Mua 1 Tặng 1 Combo bắp nước VIP</p>
                   </div>
 
                   <span className="offer-tag">VOUCHER</span>
@@ -834,11 +960,11 @@ export default function Home() {
                   </span>
 
                   <div>
-                    <h3>Tích điểm NOVA Point</h3>
-                    <p>Đổi điểm để nhận thêm quyền lợi</p>
+                    <h3>Tích Điểm NOVA Point</h3>
+                    <p>1.000 điểm = 01 vé Gold Lounge 2D</p>
                   </div>
 
-                  <span className="offer-tag">QUYỀN LỢI</span>
+                  <span className="offer-tag">QUY ĐỔI</span>
                 </div>
               </div>
             </div>
@@ -851,84 +977,87 @@ export default function Home() {
         <div className="container">
           <div className="footer-grid">
             <div className="footer-brand">
-              <Brand />
+              <div className="footer-brand-header">
+                <span className="footer-brand-symbol">
+                  <img
+                    src="/nova-icon.png"
+                    alt="NOVA CINEMA"
+                    className="footer-brand-img"
+                  />
+                </span>
+                <div className="footer-brand-title">
+                  <span>NOVA</span>
+                  <span>CINEMA</span>
+                </div>
+              </div>
 
               <p>
                 Đẳng cấp điện ảnh thượng lưu. Tận hưởng không gian
-                trình chiếu hiện đại cùng những trải nghiệm đáng nhớ.
+                trình chiếu IMAX Laser, Dolby Atmos chuẩn quốc tế cùng
+                đặc quyền ẩm thực VIP Lounge thượng hạng.
               </p>
 
-              <span className="footer-vip">
-                <Crown size={16} />
-                Chương trình hội viên NOVA Elite
-              </span>
+              <div className="footer-badge">
+                <BadgeCheck size={18} className="footer-badge-icon" />
+                <span>Chứng nhận tiêu chuẩn rạp VIP 2025</span>
+              </div>
             </div>
 
             <div className="footer-column">
-              <h3>KHÁM PHÁ NOVA</h3>
+              <h3>KHÁM PHÁ & ĐIỀU KHOẢN</h3>
 
-              <a href="#phim-dang-chieu">Phim đang chiếu</a>
-              <a href="#phim-sap-chieu">Phim sắp chiếu</a>
-              <a href="#trai-nghiem">Trải nghiệm điện ảnh</a>
-              <a href="#uu-dai">Quyền lợi thành viên</a>
-
-              <button type="button" onClick={showMembership}>
-                Thông tin chương trình
-              </button>
+              <a href="#trang-chu">Về chúng tôi</a>
+              <a href="#uu-dai" onClick={showMembership}>Quy định thành viên VIP</a>
+              <a href="#dieu-khoan" onClick={(e) => { e.preventDefault(); setModal({ title: "Chính sách bảo mật", content: <p>NOVA Cinema cam kết bảo mật tuyệt đối thông tin khách hàng và thông tin thanh toán theo chuẩn quốc tế.</p> }); }}>Chính sách bảo mật</a>
+              <a href="#dieu-khoan" onClick={(e) => { e.preventDefault(); setModal({ title: "Điều khoản dịch vụ", content: <p>Quy định về việc đặt vé, đổi trả vé và sử dụng dịch vụ tại hệ thống rạp NOVA Cinema.</p> }); }}>Điều khoản dịch vụ</a>
             </div>
 
             <div className="footer-column">
-              <h3>HỆ THỐNG CỤM RẠP</h3>
+              <h3>HỆ THỐNG CỤM RẠP NOVA</h3>
 
-              <div className="cinema-address">
-                <strong>NOVA Landmark 81</strong>
-                <span>Bình Thạnh, TP. Hồ Chí Minh</span>
-              </div>
-
-              <div className="cinema-address">
-                <strong>NOVA Westlake</strong>
-                <span>Tây Hồ, Hà Nội</span>
-              </div>
-
-              <div className="cinema-address">
-                <strong>NOVA Vincom Bà Triệu</strong>
-                <span>Hai Bà Trưng, Hà Nội</span>
-              </div>
+              {cinemas.map((item) => (
+                <div className="cinema-address" key={item.id}>
+                  <strong>{item.name}</strong>
+                  <span>{item.address}</span>
+                </div>
+              ))}
+              {!cinemas.length && <span className="muted">Thông tin rạp đang được cập nhật.</span>}
             </div>
 
             <div className="footer-column">
               <h3>LIÊN HỆ & HỖ TRỢ</h3>
 
-              <p className="footer-contact">
-                <Phone size={16} />
-                Hotline đang cập nhật
-              </p>
+              <div className="footer-contact-item">
+                <Phone size={18} className="footer-contact-icon" />
+                <div className="footer-contact-text">
+                  <span className="contact-label">Hotline Chăm sóc VIP (24/7)</span>
+                  <strong className="contact-phone">1900 6868</strong>
+                </div>
+              </div>
 
-              <p className="footer-contact">
-                <Mail size={16} />
-                Email đang cập nhật
-              </p>
+              <div className="footer-contact-item">
+                <Mail size={18} className="footer-contact-icon" />
+                <span className="contact-value">contact@novacinema.vn</span>
+              </div>
 
-              <p className="footer-contact">
-                <Clock size={16} />
-                08:00 – 24:00 hằng ngày
-              </p>
-
-              <div className="payment-icons">
-                <CreditCard size={25} />
-                <Ticket size={25} />
-                <Crown size={25} />
+              <div className="footer-contact-item">
+                <Clock size={18} className="footer-contact-icon" />
+                <span className="contact-value">08:00 - 24:00 hàng ngày</span>
               </div>
             </div>
           </div>
 
           <div className="footer-bottom">
-            <p>© {new Date().getFullYear()} NOVA CINEMA.</p>
+            <p>© 2025 NOVA CINEMA JSC. All rights reserved. Trải nghiệm điện ảnh chuẩn Hoàng gia.</p>
 
-            <p>
-              Giao diện minh họa. Lịch chiếu, điểm đánh giá, thông tin
-              rạp và ưu đãi là dữ liệu mẫu.
-            </p>
+            <div className="footer-safe-payment">
+              <span>Thanh toán an toàn:</span>
+              <div className="payment-mini-icons">
+                <CreditCard size={18} />
+                <Wallet size={18} />
+                <QrCode size={18} />
+              </div>
+            </div>
           </div>
         </div>
       </footer>

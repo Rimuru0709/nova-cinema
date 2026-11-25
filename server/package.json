@@ -4,9 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "db:auth": "node scripts/setup-auth.js",
+    "admin:grant": "node scripts/grant-admin.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "db:check": "node -e \"import('./src/config/db.js').then(m => m.testConnection().then(() => process.exit(0)))\""
   },
   "keywords": [],
   "author": "",
