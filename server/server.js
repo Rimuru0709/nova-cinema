@@ -125,6 +125,19 @@ app.get('/api/movies/:id', async (req, res) => {
     }
 });
 
+// Kiểm tra server
+app.get('/api/health', (req, res) => {
+    res.json({
+        success: true,
+        message: 'Server Nova Cinema đang hoạt động.'
+    });
+});
+
+// Khởi động server
+app.listen(PORT, () => {
+    console.log(`Server đang chạy tại http://localhost:${PORT}`);
+});
+
 // 5. Danh sách rạp
 app.get('/api/cinemas', async (req, res) => {
     try {

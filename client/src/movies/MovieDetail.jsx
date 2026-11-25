@@ -1,10 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import {
   Home,
-  Search,
   Bell,
-  Crown,
-  UserRound,
   ShieldCheck,
   Star,
   Clock,
@@ -22,7 +19,6 @@ import {
   Globe,
   Film,
   Sparkles,
-  Menu,
   X,
   BadgeCheck,
   SquarePen,
@@ -37,68 +33,56 @@ import {
 } from "./movieDetailData.js";
 import "../home/home.css";
 import "./movieDetail.css";
+import SeatSelectionModal from "../components/SeatSelectionModal.jsx";
+import SiteHeader from "../components/SiteHeader.jsx";
+import SiteFooter from "../components/SiteFooter.jsx";
 
-// Dữ liệu ngày chiếu
-const SHOW_DATES = [
-  { id: "2026-10-26", day: "26/10", tag: "HÔM NAY", weekday: "Thứ Bảy" },
-  { id: "2026-10-27", day: "27/10", tag: "NGÀY MAI", weekday: "Chủ Nhật" },
-  { id: "2026-10-28", day: "28/10", tag: "THỨ HAI", weekday: "Tiêu chuẩn" },
-  { id: "2026-10-29", day: "29/10", tag: "THỨ BA", weekday: "Ngày hội Phim" },
-  { id: "2026-10-30", day: "30/10", tag: "THỨ TƯ", weekday: "Tiêu chuẩn" },
-  { id: "2026-10-31", day: "31/10", tag: "THỨ NĂM", weekday: "Tiêu chuẩn" },
-];
+// Hàm sinh danh sách ngày chiếu 7 ngày tính từ hôm nay
+function getUpcomingShowDates() {
+  const dates = [];
+  const today = new Date();
+  const dayNames = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const date = String(d.getDate()).padStart(2, "0");
+    const id = `${year}-${month}-${date}`;
+    const day = `${date}/${month}`;
+    const tag = i === 0 ? "HÔM NAY" : i === 1 ? "NGÀY MAI" : dayNames[d.getDay()].toUpperCase();
+    const weekday = dayNames[d.getDay()];
+    dates.push({ id, day, tag, weekday });
+  }
+  return dates;
+}
 
 // Danh sách cụm rạp
 const CINEMA_LOCATIONS = [
-  { id: "landmark", name: "NOVA Landmark 81 (TP.HCM) (3 Phòng)" },
-  { id: "westlake", name: "NOVA Westlake (Hà Nội)" },
-  { id: "vincom", name: "NOVA Vincom Bà Triệu (Hà Nội)" },
+  { id: "1", name: "NOVA Landmark 81 (TP.HCM)" },
+  { id: "2", name: "NOVA Westlake (Hà Nội)" },
+  { id: "3", name: "NOVA Vincom Bà Triệu (Hà Nội)" },
 ];
 
-// Dữ liệu phòng chiếu và các suất chiếu
-const HALLS_DATA = [
-  {
-    id: "hall-imax",
-    name: "Phòng chiếu IMAX Laser Grand 01",
-    tag: "1.43:1 DUAL",
-    desc: "Màn hình cong vòm 28 x 21m • Hệ thống âm thanh 12 kênh độc quyền • Ghế da đệm Microfiber",
-    minPrice: "210.000 đ",
-    slots: [
-      { id: "s1", time: "10:30", type: "12 Phụ đề", seats: "Còn 84/145 ghế", price: "210k", priceNum: 210000, almostOut: false },
-      { id: "s2", time: "13:45", type: "12 Phụ đề", seats: "Còn 42/145 ghế", price: "210k", priceNum: 210000, almostOut: false },
-      { id: "s3", time: "16:30", type: "12 Phụ đề", seats: "Còn 35/145 ghế", price: "210k", priceNum: 210000, almostOut: false },
-      { id: "s4", time: "19:30", type: "Sắp hết", seats: "Chỉ còn 8 ghế", price: "240k", priceNum: 240000, almostOut: true },
-      { id: "s5", time: "22:15", type: "Suất đêm", seats: "Còn 78/145 ghế", price: "190k", priceNum: 190000, almostOut: false },
-    ],
-  },
-  {
-    id: "hall-vip",
-    name: "Phòng VIP Gold Lounge & Suites",
-    tag: "BUTLER & WINE SERVICE",
-    desc: "Ghế Sofa đôi bọc nhung cao cấp • Phục vụ rượu vang, đồ ăn nhẹ theo yêu cầu tại chỗ",
-    minPrice: "350.000 đ",
-    slots: [
-      { id: "s6", time: "11:15", type: "VIP 2D", seats: "Còn 14/30 ghế", price: "350k", priceNum: 350000, almostOut: false },
-      { id: "s7", time: "14:30", type: "VIP 2D", seats: "Còn 12/30 ghế", price: "350k", priceNum: 350000, almostOut: false },
-      { id: "s8", time: "17:45", type: "VIP 2D", seats: "Còn 19/30 ghế", price: "350k", priceNum: 350000, almostOut: false },
-      { id: "s9", time: "20:30", type: "VIP 2D", seats: "Còn 6/30 ghế", price: "380k", priceNum: 380000, almostOut: false },
-    ],
-  },
-  {
-    id: "hall-dolby",
-    name: "Phòng Dolby Atmos 3D Hall 04",
-    tag: "DOLBY 3D",
-    desc: "Hệ thống âm thanh đa chiều 64 loa độc lập • Kính 3D siêu nhẹ chống mỏi mắt",
-    minPrice: "160.000 đ",
-    slots: [
-      { id: "s10", time: "09:45", type: "3D Atmos", seats: "Còn 92/170 ghế", price: "160k", priceNum: 160000, almostOut: false },
-      { id: "s11", time: "12:30", type: "3D Atmos", seats: "Còn 66/170 ghế", price: "170k", priceNum: 170000, almostOut: false },
-      { id: "s12", time: "15:15", type: "3D Atmos", seats: "Còn 47/170 ghế", price: "170k", priceNum: 170000, almostOut: false },
-      { id: "s13", time: "18:45", type: "3D Atmos", seats: "Còn 19/170 ghế", price: "185k", priceNum: 185000, almostOut: false },
-      { id: "s14", time: "21:30", type: "3D Atmos", seats: "Còn 61/170 ghế", price: "160k", priceNum: 160000, almostOut: false },
-    ],
-  },
+// Bộ lọc khung giờ chiếu
+const TIME_FILTERS = [
+  { id: "all", label: "Tất cả giờ" },
+  { id: "morning", label: "Sáng (< 12h)" },
+  { id: "afternoon", label: "Chiều (12h - 18h)" },
+  { id: "evening", label: "Tối (>= 18h)" },
 ];
+
+function mapMovieIdToDb(id) {
+  const s = String(id || "").toLowerCase();
+  if (s.includes("dune")) return "dune";
+  if (s.includes("oppenheimer")) return "oppenheimer";
+  if (s.includes("mai")) return "mai";
+  if (s.includes("godzilla")) return "godzilla";
+  if (s.includes("deadpool")) return "deadpool";
+  if (s.includes("joker")) return "joker";
+  if (s.includes("gladiator")) return "gladiator";
+  return s;
+}
 
 export default function MovieDetail({ movieId = "dune-2", onNavigate, onSelectMovieAndBook, initialMovie = null }) {
   // Tìm thông tin phim hiện tại (mặc định lấy Dune 2 nếu không tìm thấy)
@@ -186,14 +170,113 @@ export default function MovieDetail({ movieId = "dune-2", onNavigate, onSelectMo
   const [likeCount, setLikeCount] = useState(() =>
     Math.round(20000 + (currentMovie.rating || 9) * 1200)
   );
-  const [selectedDate, setSelectedDate] = useState("2026-10-26");
-  const [selectedCinema, setSelectedCinema] = useState("landmark");
+  const showDates = useMemo(() => getUpcomingShowDates(), []);
+  const [selectedDate, setSelectedDate] = useState(() => showDates[0]?.id || "2026-11-21");
+  const [selectedCinema, setSelectedCinema] = useState("1");
+  const [selectedTimeFilter, setSelectedTimeFilter] = useState("all");
+  const [dbShowtimes, setDbShowtimes] = useState([]);
+  const [showtimesLoading, setShowtimesLoading] = useState(false);
+  const [seatModalShowtimeId, setSeatModalShowtimeId] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState({
-    hallName: "Phòng chiếu IMAX Laser Grand 01",
-    slotTime: "13:45",
-    price: "210.000 đ",
-    priceNum: 210000,
+    id: null,
+    hallName: "Phòng 1 (2D)",
+    slotTime: "10:30",
+    price: "90.000 đ",
+    priceNum: 90000,
+    startsAt: null,
   });
+
+  // Tải danh sách lịch chiếu thật từ cơ sở dữ liệu MySQL
+  useEffect(() => {
+    let ignore = false;
+    async function fetchShowtimes() {
+      const dbId = mapMovieIdToDb(currentMovie.id);
+      const cinemaId = selectedCinema === "landmark" ? "1" : selectedCinema === "westlake" ? "2" : selectedCinema === "vincom" ? "3" : selectedCinema;
+      setShowtimesLoading(true);
+      try {
+        const queryParams = new URLSearchParams({
+          movieId: dbId,
+          cinemaId: cinemaId,
+          date: selectedDate,
+        });
+        if (selectedTimeFilter !== "all") {
+          queryParams.append("time", selectedTimeFilter);
+        }
+        const res = await fetch(`/api/showtimes?${queryParams.toString()}`);
+        const json = await res.json();
+        if (ignore) return;
+        if (res.ok && json.success && Array.isArray(json.data)) {
+          setDbShowtimes(json.data);
+          if (json.data.length > 0) {
+            const first = json.data[0];
+            setSelectedSlot({
+              id: first.id,
+              hallName: `${first.roomName} • ${first.format}`,
+              slotTime: first.time,
+              price: `${first.price.toLocaleString("vi-VN")} đ`,
+              priceNum: first.price,
+              startsAt: first.startsAt,
+            });
+          } else {
+            setSelectedSlot({
+              id: null,
+              hallName: "Chưa có suất",
+              slotTime: "--:--",
+              price: "90.000 đ",
+              priceNum: 90000,
+              startsAt: null,
+            });
+          }
+        } else {
+          setDbShowtimes([]);
+        }
+      } catch (err) {
+        if (!ignore) {
+          console.error("Lỗi tải lịch chiếu:", err);
+          setDbShowtimes([]);
+        }
+      } finally {
+        if (!ignore) setShowtimesLoading(false);
+      }
+    }
+    fetchShowtimes();
+    return () => {
+      ignore = true;
+    };
+  }, [currentMovie.id, selectedCinema, selectedDate, selectedTimeFilter]);
+
+  // Nhóm các suất chiếu theo phòng chiếu
+  const hallsList = useMemo(() => {
+    if (!dbShowtimes || dbShowtimes.length === 0) return [];
+    const roomsMap = {};
+    dbShowtimes.forEach((st) => {
+      const key = `${st.roomId}_${st.format}`;
+      if (!roomsMap[key]) {
+        roomsMap[key] = {
+          id: key,
+          name: `${st.roomName} • ${st.format}`,
+          tag: st.format === "IMAX" ? "1.43:1 DUAL" : st.format === "3D" ? "DOLBY 3D" : "TIÊU CHUẨN 2D",
+          desc: st.format === "IMAX"
+            ? "Màn hình cong Laser • Âm thanh vòm đa tầng • Ghế da đệm Microfiber"
+            : "Hệ thống âm thanh đa chiều 64 loa độc lập • Màn hình sắc nét tiêu chuẩn",
+          minPrice: `${st.price.toLocaleString("vi-VN")} đ`,
+          slots: [],
+        };
+      }
+      roomsMap[key].slots.push({
+        id: st.id,
+        time: st.time,
+        type: `${st.format} Phụ đề`,
+        seats: `Còn ${st.availableSeats}/${st.totalSeats} ghế`,
+        price: `${(st.price / 1000).toFixed(0)}k`,
+        priceNum: st.price,
+        almostOut: st.availableSeats <= 8,
+        startsAt: st.startsAt,
+        roomName: roomsMap[key].name,
+      });
+    });
+    return Object.values(roomsMap);
+  }, [dbShowtimes]);
 
   // Reset trạng thái yêu thích & cuộn lên đầu trang khi đổi phim
   useEffect(() => {
@@ -207,7 +290,6 @@ export default function MovieDetail({ movieId = "dune-2", onNavigate, onSelectMo
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewFormData, setReviewFormData] = useState({ author: "", score: "10", content: "" });
   const [toastMessage, setToastMessage] = useState("");
-  const [menuOpen, setMenuOpen] = useState(false);
   const showtimesRef = useRef(null);
 
   // Danh sách các phim tương tự (loại bỏ phim hiện tại)
@@ -261,17 +343,19 @@ export default function MovieDetail({ movieId = "dune-2", onNavigate, onSelectMo
 
   // Xử lý khi bấm nút "Chọn Suất & Ghế" ở thanh Sticky Bar
   function handleStickyBookClick() {
-    if (onSelectMovieAndBook) {
-      onSelectMovieAndBook({
-        ...currentMovie,
-        selectedSlot,
-        selectedDate,
-        selectedCinema,
-      });
-    } else {
+    if (!selectedSlot || !selectedSlot.id) {
       scrollToBooking();
-      triggerToast(`Đã chọn suất ${selectedSlot.slotTime} (${selectedSlot.hallName}). Đang chuyển tới đặt ghế...`);
+      triggerToast("Vui lòng chọn một suất chiếu trong danh sách.");
+      return;
     }
+    if (new Date(selectedSlot.startsAt).getTime() <= Date.now()) {
+      triggerToast("⚠️ Suất chiếu này đã bắt đầu. Vui lòng chọn suất khác.");
+      return;
+    }
+    if (onSelectMovieAndBook) {
+      onSelectMovieAndBook(selectedSlot);
+    }
+    setSeatModalShowtimeId(selectedSlot.id);
   }
 
   // Xử lý gửi nhận xét mới
@@ -314,170 +398,8 @@ export default function MovieDetail({ movieId = "dune-2", onNavigate, onSelectMo
         </div>
       )}
 
-      {/* THANH ĐIỀU HƯỚNG ĐỒNG BỘ 100% TRANG CHỦ */}
-      <header className="site-header">
-        <div className="container header-inner">
-          {/* LOGO BRAND */}
-          <a
-            className="brand"
-            href="#trang-chu"
-            aria-label="Nova Cinema trang chủ"
-            onClick={(e) => {
-              e.preventDefault();
-              if (onNavigate) onNavigate("home", "#trang-chu");
-              else window.location.hash = "#trang-chu";
-            }}
-          >
-            <span className="brand-symbol">
-              <img
-                src="/nova-icon.png"
-                alt="Nova Cinema Logo"
-                className="brand-icon-img"
-              />
-            </span>
-            <span className="brand-text">
-              <strong>NOVA CINEMA</strong>
-              <small>LUXURY EXPERIENCE</small>
-            </span>
-          </a>
-
-          {/* NAV LINKS */}
-          <nav
-            id="main-navigation"
-            className={`main-nav ${menuOpen ? "is-open" : ""}`}
-            aria-label="Menu chính"
-          >
-            <a
-              href="#trang-chu"
-              onClick={(e) => {
-                e.preventDefault();
-                setMenuOpen(false);
-                if (onNavigate) onNavigate("home", "#trang-chu");
-                else window.location.hash = "#trang-chu";
-              }}
-            >
-              Trang chủ
-            </a>
-
-            <a
-              href="#phim"
-              onClick={(e) => {
-                e.preventDefault();
-                setMenuOpen(false);
-                if (onNavigate) {
-                  onNavigate("movies");
-                } else {
-                  window.location.hash = "#phim";
-                }
-              }}
-            >
-              Phim
-            </a>
-
-            <a
-              href="#dat-ve"
-              onClick={(e) => {
-                e.preventDefault();
-                setMenuOpen(false);
-                scrollToBooking();
-              }}
-            >
-              Lịch chiếu
-            </a>
-
-            <a
-              href="#uu-dai"
-              onClick={(e) => {
-                e.preventDefault();
-                setMenuOpen(false);
-                if (onNavigate) onNavigate("home", "#uu-dai");
-                else window.location.hash = "#uu-dai";
-              }}
-            >
-              Giá vé & Ưu đãi
-            </a>
-
-            <a
-              href="#trai-nghiem"
-              onClick={(e) => {
-                e.preventDefault();
-                setMenuOpen(false);
-                if (onNavigate) onNavigate("home", "#trai-nghiem");
-                else window.location.hash = "#trai-nghiem";
-              }}
-            >
-              Giới thiệu
-            </a>
-
-            <a
-              href="#lien-he"
-              onClick={(e) => {
-                e.preventDefault();
-                setMenuOpen(false);
-                if (onNavigate) onNavigate("home", "#lien-he");
-                else window.location.hash = "#lien-he";
-              }}
-            >
-              Liên hệ
-            </a>
-          </nav>
-
-          {/* ACTION BUTTONS & USER */}
-          <div className="header-actions">
-            <button
-              type="button"
-              className="icon-button"
-              aria-label="Tìm kiếm phim"
-              onClick={() => onNavigate && onNavigate("movie-list")}
-            >
-              <Search size={18} />
-            </button>
-
-            <button
-              type="button"
-              className="icon-button notification-button"
-              aria-label="Xem phim đang quan tâm"
-              onClick={() => triggerToast("Bạn chưa có thông báo mới nào.")}
-            >
-              <Bell size={18} />
-            </button>
-
-            <a
-              className="gold-tier"
-              href="#uu-dai"
-              onClick={(e) => {
-                e.preventDefault();
-                triggerToast("Hạng thẻ hiện tại: GOLD TIER (Giảm 15% bắp nước & phòng VIP)");
-              }}
-            >
-              <Crown size={14} />
-              GOLD TIER
-            </a>
-
-            <button
-              type="button"
-              className="avatar-button"
-              aria-label="Xem thông tin hội viên"
-              onClick={() => triggerToast("Hồ sơ hội viên NOVA Cinema")}
-            >
-              <UserRound size={18} />
-            </button>
-
-            <button
-              type="button"
-              className="icon-button menu-toggle"
-              aria-label={menuOpen ? "Đóng menu" : "Mở menu"}
-              aria-expanded={menuOpen}
-              aria-controls="main-navigation"
-              onClick={() => {
-                setMenuOpen((current) => !current);
-              }}
-            >
-              {menuOpen ? <X size={22} /> : <Menu size={22} />}
-            </button>
-          </div>
-        </div>
-      </header>
+      {/* THANH ĐIỀU HƯỚNG DÙNG CHUNG */}
+      <SiteHeader activeNav="movies" onNavigate={onNavigate} />
 
       {/* BREADCRUMB */}
       <div className="detail-breadcrumb-bar">
@@ -878,7 +800,7 @@ export default function MovieDetail({ movieId = "dune-2", onNavigate, onSelectMo
 
           {/* HÀNG TAB CHỌN NGÀY */}
           <div className="detail-dates-row">
-            {SHOW_DATES.map((d) => (
+            {showDates.map((d) => (
               <div
                 key={d.id}
                 className={`detail-date-tab ${selectedDate === d.id ? "active" : ""}`}
@@ -906,67 +828,102 @@ export default function MovieDetail({ movieId = "dune-2", onNavigate, onSelectMo
             ))}
           </div>
 
-          {/* CÁC PHÒNG CHIẾU VÀ SUẤT CHIẾU */}
-          <div className="detail-halls-list">
-            {HALLS_DATA.map((hall) => (
-              <div className="detail-hall-card" key={hall.id}>
-                <div className="detail-hall-header">
-                  <div className="detail-hall-info">
-                    <div className="detail-hall-name-row">
-                      <Monitor size={18} className="detail-hall-icon" />
-                      <span className="detail-hall-name">{hall.name}</span>
-                      <span className="detail-hall-tag">{hall.tag}</span>
-                    </div>
-                    <div className="detail-hall-desc">{hall.desc}</div>
-                  </div>
-
-                  <div className="detail-hall-price">
-                    GIÁ VÉ TỪ {hall.minPrice}
-                  </div>
-                </div>
-
-                {/* SUẤT CHIẾU GRID */}
-                <div className="detail-slots-grid">
-                  {hall.slots.map((slot) => {
-                    const isSelected =
-                      selectedSlot.slotTime === slot.time &&
-                      selectedSlot.hallName === hall.name;
-
-                    return (
-                      <div
-                        key={slot.id}
-                        className={`detail-slot-btn ${isSelected ? "selected" : ""}`}
-                        onClick={() => {
-                          setSelectedSlot({
-                            hallName: hall.name,
-                            slotTime: slot.time,
-                            price: `${slot.priceNum.toLocaleString("vi-VN")} đ`,
-                            priceNum: slot.priceNum,
-                          });
-                          triggerToast(`Đã chọn suất ${slot.time} - ${hall.name}`);
-                        }}
-                      >
-                        <div className="detail-slot-top">
-                          <span className="detail-slot-time">{slot.time}</span>
-                          {slot.almostOut ? (
-                            <span className="detail-slot-badge-red">Sắp hết</span>
-                          ) : (
-                            <span className="detail-slot-type">{slot.type}</span>
-                          )}
-                        </div>
-                        <div className="detail-slot-bottom">
-                          <span className={`detail-slot-seats ${slot.almostOut ? "almost-out" : ""}`}>
-                            {slot.seats}
-                          </span>
-                          <span className="detail-slot-price">{slot.price}</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+          {/* LỌC KHUNG GIỜ CHIẾU */}
+          <div className="detail-cinema-filter-row" style={{ marginTop: '10px' }}>
+            <span className="detail-filter-label">Khung giờ:</span>
+            {TIME_FILTERS.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                className={`detail-cinema-pill ${selectedTimeFilter === t.id ? "active" : ""}`}
+                onClick={() => setSelectedTimeFilter(t.id)}
+              >
+                {t.label}
+              </button>
             ))}
           </div>
+
+          {/* CÁC PHÒNG CHIẾU VÀ SUẤT CHIẾU */}
+          {showtimesLoading ? (
+            <div style={{ textAlign: "center", padding: "40px", color: "#a8b8c8" }}>
+              <Clock size={28} style={{ animation: "seatSpin 0.8s linear infinite", marginBottom: "8px" }} />
+              <div>Đang tải lịch chiếu từ hệ thống…</div>
+            </div>
+          ) : hallsList.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "36px 20px", background: "rgba(18, 45, 69, 0.35)", borderRadius: "14px", border: "1px solid rgba(190, 212, 232, 0.12)", color: "#a8b8c8" }}>
+              <Clock size={32} color="var(--gold)" style={{ marginBottom: "10px" }} />
+              <p style={{ margin: "0 0 6px 0", color: "#fff", fontWeight: 700 }}>Không tìm thấy suất chiếu phù hợp</p>
+              <p style={{ margin: 0, fontSize: "0.88rem" }}>Vui lòng chọn ngày chiếu, cụm rạp hoặc khung giờ khác để theo dõi lịch chiếu.</p>
+            </div>
+          ) : (
+            <div className="detail-halls-list">
+              {hallsList.map((hall) => (
+                <div className="detail-hall-card" key={hall.id}>
+                  <div className="detail-hall-header">
+                    <div className="detail-hall-info">
+                      <div className="detail-hall-name-row">
+                        <Monitor size={18} className="detail-hall-icon" />
+                        <span className="detail-hall-name">{hall.name}</span>
+                        <span className="detail-hall-tag">{hall.tag}</span>
+                      </div>
+                      <div className="detail-hall-desc">{hall.desc}</div>
+                    </div>
+
+                    <div className="detail-hall-price">
+                      GIÁ VÉ TỪ {hall.minPrice}
+                    </div>
+                  </div>
+
+                  {/* SUẤT CHIẾU GRID */}
+                  <div className="detail-slots-grid">
+                    {hall.slots.map((slot) => {
+                      const isSelected = selectedSlot?.id === slot.id;
+
+                      return (
+                        <div
+                          key={slot.id}
+                          className={`detail-slot-btn ${isSelected ? "selected" : ""}`}
+                          onClick={() => {
+                            setSelectedSlot({
+                              id: slot.id,
+                              hallName: hall.name,
+                              slotTime: slot.time,
+                              price: `${slot.priceNum.toLocaleString("vi-VN")} đ`,
+                              priceNum: slot.priceNum,
+                              startsAt: slot.startsAt,
+                            });
+                            triggerToast(`Đã chọn suất ${slot.time} - ${hall.name}`);
+                          }}
+                          onDoubleClick={() => {
+                            if (new Date(slot.startsAt).getTime() <= Date.now()) {
+                              triggerToast("⚠️ Suất chiếu đã bắt đầu. Vui lòng chọn suất khác.");
+                              return;
+                            }
+                            setSeatModalShowtimeId(slot.id);
+                          }}
+                        >
+                          <div className="detail-slot-top">
+                            <span className="detail-slot-time">{slot.time}</span>
+                            {slot.almostOut ? (
+                              <span className="detail-slot-badge-red">Sắp hết</span>
+                            ) : (
+                              <span className="detail-slot-type">{slot.type}</span>
+                            )}
+                          </div>
+                          <div className="detail-slot-bottom">
+                            <span className={`detail-slot-seats ${slot.almostOut ? "almost-out" : ""}`}>
+                              {slot.seats}
+                            </span>
+                            <span className="detail-slot-price">{slot.price}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* SECTION: ĐÁNH GIÁ TỪ HỘI VIÊN & CHUYÊN GIA (3 CỘT NGANG NHAU NHƯ ẢNH 1) */}
@@ -1199,7 +1156,9 @@ export default function MovieDetail({ movieId = "dune-2", onNavigate, onSelectMo
                 {currentMovie.title}
               </span>
               <span className="detail-sticky-sub">
-                NOVA Landmark 81 • Hôm nay 26/10 • Suất chiếu: {selectedSlot.slotTime} ({selectedSlot.hallName})
+                {selectedSlot?.startsAt
+                  ? `${selectedSlot.hallName} • Suất: ${selectedSlot.slotTime} (${new Date(selectedSlot.startsAt).toLocaleDateString("vi-VN")})`
+                  : `Vui lòng chọn suất chiếu`}
               </span>
             </div>
           </div>
@@ -1222,63 +1181,8 @@ export default function MovieDetail({ movieId = "dune-2", onNavigate, onSelectMo
         </div>
       </div>
 
-      {/* FOOTER CHUẨN NOVA LUXURY */}
-      <footer className="detail-footer">
-        <div className="detail-container">
-          <div className="detail-footer-grid">
-            <div className="detail-footer-brand-col">
-              <div className="detail-brand" onClick={() => onNavigate && onNavigate("home")}>
-                <div className="detail-brand-symbol">
-                  <img src="/nova-icon.png" alt="Nova Cinema" onError={(e) => (e.target.style.display = "none")} />
-                </div>
-                <div className="detail-brand-text">
-                  <strong>NOVA CINEMA</strong>
-                  <small>LUXURY EXPERIENCE</small>
-                </div>
-              </div>
-              <p className="detail-footer-desc">
-                Đẳng cấp điện ảnh thượng lưu. Trải nghiệm hệ thống phòng chiếu IMAX Laser, Dolby Atmos chuẩn quốc tế cùng đặc quyền ẩm thực VIP Lounge thượng hạng.
-              </p>
-              <div className="detail-footer-badge">
-                <BadgeCheck size={18} />
-                <span>Chứng nhận tiêu chuẩn rạp VIP Quốc Tế</span>
-              </div>
-            </div>
-
-            <div className="detail-footer-col">
-              <div className="detail-footer-col-title">KHÁM PHÁ & DỊCH VỤ HOÀN</div>
-              <a onClick={() => onNavigate && onNavigate("movies")}>Về chúng tôi</a>
-              <a onClick={() => triggerToast("Chương trình Hội viên NOVA VIP")}>Quy định thành viên VIP</a>
-              <a onClick={() => triggerToast("Chính sách bảo mật NOVA Cinema")}>Chính sách bảo mật</a>
-              <a onClick={() => triggerToast("Điều khoản dịch vụ")}>Điều khoản dịch vụ</a>
-            </div>
-
-            <div className="detail-footer-col">
-              <div className="detail-footer-col-title">HỆ THỐNG CỤM RẠP NOVA</div>
-              <a href="#lich-chieu">NOVA Landmark 81 (Tầng B1, Vincom Landmark 81, TP.HCM)</a>
-              <a href="#lich-chieu">NOVA Westlake (Tầng 4, Lotte Mall West Lake, Hà Nội)</a>
-              <a href="#lich-chieu">NOVA Vincom Bà Triệu (Tầng 6, Tháp B, Bà Triệu, Hà Nội)</a>
-            </div>
-
-            <div className="detail-footer-col">
-              <div className="detail-footer-col-title">LIÊN HỆ & HỖ TRỢ</div>
-              <a style={{ color: "#ffce6d", fontWeight: "700" }}>Tổng đài chăm sóc VIP 24/7:</a>
-              <span style={{ fontSize: "18px", fontWeight: "800", color: "#ffce6d" }}>1900 6888</span>
-              <a href="mailto:contact@novacinema.vn">contact@novacinema.vn</a>
-              <span style={{ color: "#8da4be" }}>08:00 - 24:00 hàng ngày</span>
-            </div>
-          </div>
-
-          <div className="detail-footer-bot">
-            <div>
-              © 2024 NOVA CINEMA JSC. All rights reserved. Tiêu chuẩn điện ảnh chuẩn Hoàng gia.
-            </div>
-            <div>
-              Thanh toán an toàn qua VNPAY, MoMo, Visa/Mastercard
-            </div>
-          </div>
-        </div>
-      </footer>
+      {/* FOOTER DÙNG CHUNG */}
+      <SiteFooter onNavigate={onNavigate} />
 
       {/* MODAL VIDEO TRAILER YOUTUBE 4K RIÊNG CỦA PHIM */}
       {showVideoModal && (
@@ -1408,6 +1312,16 @@ export default function MovieDetail({ movieId = "dune-2", onNavigate, onSelectMo
             </form>
           </div>
         </div>
+      )}
+      {/* MODAL SƠ ĐỒ CHỌN & GIỮ GHẾ (TV3) */}
+      {seatModalShowtimeId && (
+        <SeatSelectionModal
+          showtimeId={seatModalShowtimeId}
+          onClose={() => setSeatModalShowtimeId(null)}
+          onBookingSuccess={(b) => {
+            triggerToast(`🎉 Đặt vé ${b.bookingCode} thành công!`);
+          }}
+        />
       )}
     </div>
   );

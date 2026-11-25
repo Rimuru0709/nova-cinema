@@ -1,0 +1,834 @@
+/* =====================================================
+   SHOWTIMES PAGE STYLES (NOVA CINEMA - IMAGE 2)
+===================================================== */
+
+.showtimes-page {
+    min-height: 100vh;
+    background: #020f1c;
+    color: #eaf0f7;
+    font-family: "Be Vietnam Pro", Arial, sans-serif;
+    padding-bottom: 0;
+}
+
+.showtimes-container {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 20px 60px 20px;
+}
+
+/* Breadcrumb */
+.showtimes-breadcrumb {
+    padding: 18px 0;
+    font-size: 0.85rem;
+    color: #7f8fa6;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.showtimes-breadcrumb a {
+    color: #a8b8c8;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.showtimes-breadcrumb a:hover {
+    color: var(--gold, #ffce6d);
+}
+
+.showtimes-breadcrumb span.current {
+    color: var(--gold, #ffce6d);
+    font-weight: 600;
+}
+
+/* Hero Banner */
+.showtimes-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+}
+
+.showtimes-hero-left {
+    flex: 1;
+    min-width: 320px;
+}
+
+.showtimes-hero-badge {
+    display: inline-block;
+    background: rgba(255, 206, 109, 0.12);
+    border: 1px solid rgba(255, 206, 109, 0.4);
+    color: var(--gold, #ffce6d);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.showtimes-hero-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin: 0 0 10px 0;
+    color: #fff;
+    letter-spacing: -0.5px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.showtimes-hero-subtitle {
+    font-size: 0.92rem;
+    color: #a8b8c8;
+    line-height: 1.6;
+    margin: 0;
+    max-width: 740px;
+}
+
+.showtimes-hero-right {
+    display: flex;
+    align-items: center;
+}
+
+.showtimes-cinema-pill {
+    background: #092036;
+    border: 1px solid rgba(255, 206, 109, 0.35);
+    padding: 12px 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.88rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.showtimes-cinema-pill strong {
+    color: #fff;
+    font-weight: 800;
+}
+
+/* Filter Box */
+.showtimes-filter-card {
+    background: #06192b;
+    border: 1px solid rgba(190, 212, 232, 0.14);
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.showtimes-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.showtimes-filter-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.showtimes-filter-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--gold, #ffce6d);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+
+.showtimes-city-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+.showtimes-city-btn {
+    flex: 1;
+    background: #031424;
+    border: 1px solid rgba(190, 212, 232, 0.2);
+    color: #a8b8c8;
+    padding: 9px 8px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.showtimes-city-btn.active {
+    background: var(--gold, #ffce6d);
+    color: #020f1c;
+    border-color: var(--gold, #ffce6d);
+}
+
+.showtimes-select,
+.showtimes-input {
+    background: #031424;
+    border: 1px solid rgba(190, 212, 232, 0.2);
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.showtimes-select:focus,
+.showtimes-input:focus {
+    border-color: var(--gold, #ffce6d);
+}
+
+.showtimes-tech-pills {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(190, 212, 232, 0.08);
+    flex-wrap: wrap;
+}
+
+.showtimes-pills-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.showtimes-tech-pill {
+    background: transparent;
+    border: 1px solid rgba(190, 212, 232, 0.2);
+    color: #a8b8c8;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.showtimes-tech-pill:hover,
+.showtimes-tech-pill.active {
+    background: rgba(255, 206, 109, 0.15);
+    border-color: var(--gold, #ffce6d);
+    color: var(--gold, #ffce6d);
+}
+
+.showtimes-time-note {
+    font-size: 0.8rem;
+    color: #7f8fa6;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Date Bar */
+.showtimes-date-card {
+    background: #06192b;
+    border: 1px solid rgba(190, 212, 232, 0.14);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+}
+
+.showtimes-date-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.showtimes-date-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--gold, #ffce6d);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.showtimes-date-arrows {
+    display: flex;
+    gap: 6px;
+}
+
+.showtimes-arrow-btn {
+    background: #031424;
+    border: 1px solid rgba(190, 212, 232, 0.2);
+    color: #fff;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.showtimes-dates-strip {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+}
+
+.showtimes-date-item {
+    background: #031424;
+    border: 1px solid rgba(190, 212, 232, 0.15);
+    border-radius: 10px;
+    padding: 12px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    position: relative;
+}
+
+.showtimes-date-today-badge {
+    position: absolute;
+    top: -8px;
+    background: var(--gold, #ffce6d);
+    color: #020f1c;
+    font-size: 0.6rem;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 4px;
+}
+
+.showtimes-date-item:hover {
+    border-color: rgba(255, 206, 109, 0.5);
+    transform: translateY(-2px);
+}
+
+.showtimes-date-item.active {
+    background: linear-gradient(135deg, #163653, #1f476b);
+    border: 2px solid var(--gold, #ffce6d);
+    box-shadow: 0 4px 14px rgba(255, 206, 109, 0.25);
+}
+
+.showtimes-date-num {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+}
+
+.showtimes-date-item.active .showtimes-date-num {
+    color: var(--gold, #ffce6d);
+}
+
+.showtimes-date-weekday {
+    font-size: 0.78rem;
+    color: #a8b8c8;
+}
+
+.showtimes-date-tag {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #ffd369;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+/* Notification & Legend Bar */
+.showtimes-notice-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #092036;
+    border: 1px solid rgba(255, 206, 109, 0.2);
+    border-radius: 10px;
+    padding: 12px 20px;
+    margin-bottom: 24px;
+    font-size: 0.85rem;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.showtimes-notice-text {
+    color: #ffda79;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.showtimes-legend-group {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.showtimes-legend-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+
+.showtimes-legend-dot.gold { background: var(--gold, #ffce6d); }
+.showtimes-legend-dot.red { background: #e74c3c; }
+.showtimes-legend-dot.gray { background: #7f8fa6; }
+
+/* Movie Section */
+.showtimes-section-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 16px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.showtimes-movie-card {
+    background: #06192b;
+    border: 1px solid rgba(190, 212, 232, 0.14);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    display: flex;
+    gap: 28px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+.showtimes-movie-left {
+    width: 180px;
+    flex-shrink: 0;
+}
+
+.showtimes-movie-poster-box {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 206, 109, 0.2);
+}
+
+.showtimes-movie-poster {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    display: block;
+}
+
+.showtimes-movie-age-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: #e74c3c;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+.showtimes-movie-format-badges {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    display: flex;
+    gap: 4px;
+}
+
+.showtimes-movie-format-badge {
+    background: rgba(3, 21, 37, 0.85);
+    border: 1px solid rgba(255, 206, 109, 0.4);
+    color: var(--gold, #ffce6d);
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.showtimes-movie-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.showtimes-movie-btn {
+    flex: 1;
+    background: #031424;
+    border: 1px solid rgba(190, 212, 232, 0.2);
+    color: #a8b8c8;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.showtimes-movie-btn:hover {
+    border-color: var(--gold, #ffce6d);
+    color: #fff;
+}
+
+.showtimes-movie-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.showtimes-movie-title-row h3 {
+    margin: 0 0 4px 0;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+.showtimes-movie-sub-info {
+    font-size: 0.85rem;
+    color: #7f8fa6;
+    margin: 0;
+}
+
+/* Halls in Movie Card */
+.showtimes-halls-group {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.showtimes-hall-item {
+    background: #031424;
+    border: 1px solid rgba(190, 212, 232, 0.1);
+    border-radius: 10px;
+    padding: 14px 18px;
+}
+
+.showtimes-hall-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.showtimes-hall-title-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.showtimes-hall-tag {
+    background: rgba(255, 206, 109, 0.15);
+    border: 1px solid rgba(255, 206, 109, 0.4);
+    color: var(--gold, #ffce6d);
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.showtimes-hall-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #fff;
+}
+
+.showtimes-hall-features {
+    font-size: 0.8rem;
+    color: #7f8fa6;
+}
+
+.showtimes-slots-grid {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.showtimes-slot-card {
+    background: #081d31;
+    border: 1px solid rgba(190, 212, 232, 0.2);
+    border-radius: 8px;
+    padding: 8px 14px;
+    min-width: 110px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    position: relative;
+    overflow: hidden;
+}
+
+.showtimes-slot-card:hover {
+    border-color: var(--gold, #ffce6d);
+    background: #0d2945;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 206, 109, 0.2);
+}
+
+.showtimes-slot-card.slot-hot {
+    border: 1.5px solid var(--gold, #ffce6d);
+    background: #113454;
+}
+
+.slot-hot-ribbon {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #e74c3c;
+    color: #fff;
+    font-size: 0.58rem;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 0 0 0 6px;
+}
+
+.showtimes-slot-time {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+.showtimes-slot-type {
+    font-size: 0.7rem;
+    color: #7f8fa6;
+}
+
+.showtimes-slot-seats {
+    font-size: 0.72rem;
+    color: #a8b8c8;
+}
+
+.showtimes-slot-seats.almost-out {
+    color: #ff7675;
+    font-weight: 700;
+}
+
+.showtimes-slot-price {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--gold, #ffce6d);
+    margin-top: 2px;
+}
+
+/* 8. Cinema Info & Map Section (Image 2) */
+.showtimes-cinema-map-section {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 20px;
+    margin-top: 28px;
+}
+
+.showtimes-cinema-details-card {
+    background: #06192b;
+    border: 1px solid rgba(190, 212, 232, 0.14);
+    border-radius: 14px;
+    padding: 24px;
+}
+
+.showtimes-cinema-details-card h4 {
+    margin: 0 0 4px 0;
+    font-size: 1.25rem;
+    color: #fff;
+    font-weight: 800;
+}
+
+.showtimes-cinema-addr {
+    font-size: 0.88rem;
+    color: #a8b8c8;
+    margin: 0 0 18px 0;
+}
+
+.showtimes-perks-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.showtimes-perk-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.showtimes-perk-item strong {
+    display: block;
+    font-size: 0.82rem;
+    color: #fff;
+}
+
+.showtimes-perk-item span {
+    font-size: 0.78rem;
+    color: #7f8fa6;
+}
+
+.showtimes-skyview-note {
+    background: rgba(255, 206, 109, 0.08);
+    border: 1px dashed rgba(255, 206, 109, 0.35);
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 0.82rem;
+    color: #ffd369;
+}
+
+/* Map Card */
+.showtimes-map-card {
+    background: #06192b;
+    border: 1px solid rgba(190, 212, 232, 0.14);
+    border-radius: 14px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.showtimes-map-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 12px;
+}
+
+.showtimes-map-visual {
+    background: #031424;
+    border: 1px solid rgba(190, 212, 232, 0.15);
+    border-radius: 10px;
+    height: 140px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+.showtimes-map-pin {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+.showtimes-direction-btn {
+    background: var(--gold, #ffce6d);
+    color: #020f1c;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-weight: 800;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.showtimes-direction-btn:hover {
+    transform: translateY(-2px);
+}
+
+.showtimes-map-footer-note {
+    font-size: 0.78rem;
+    color: #7f8fa6;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* 9. Policy Grid */
+.showtimes-policy-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.showtimes-policy-card {
+    background: #031424;
+    border: 1px solid rgba(190, 212, 232, 0.1);
+    border-radius: 10px;
+    padding: 18px 20px;
+}
+
+.showtimes-policy-card h5 {
+    margin: 0 0 10px 0;
+    font-size: 0.82rem;
+    color: var(--gold, #ffce6d);
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+}
+
+.showtimes-policy-card ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 0.8rem;
+    color: #a8b8c8;
+    line-height: 1.6;
+}
+
+.showtimes-age-table {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 0.78rem;
+    color: #a8b8c8;
+    margin-bottom: 8px;
+}
+
+.showtimes-age-table strong {
+    color: #fff;
+}
+
+.showtimes-age-note {
+    margin: 0;
+    font-size: 0.75rem;
+    color: #7f8fa6;
+}
+
+@media (max-width: 900px) {
+    .showtimes-cinema-map-section,
+    .showtimes-policy-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .showtimes-movie-card {
+        flex-direction: column;
+    }
+    .showtimes-movie-left {
+        width: 100%;
+        text-align: center;
+    }
+    .showtimes-movie-poster {
+        height: 220px;
+        width: 150px;
+        margin: 0 auto;
+    }
+    .showtimes-dates-strip {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}

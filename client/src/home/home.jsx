@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import SeatSelectionModal from "../components/SeatSelectionModal.jsx";
 
 import {
   Menu,
@@ -19,7 +20,6 @@ import {
   Gem,
   Phone,
   Mail,
-  Gift,
   CreditCard,
   Check,
   Sparkles,
@@ -453,7 +453,24 @@ export default function Home({ onNavigate, selectedMovieIdFromParent }) {
 
         {/* ĐẶT VÉ NHANH */}
         <div className="container booking-wrapper" id="dat-ve">
-          <form className="quick-booking" onSubmit={previewBooking}>
+          <form
+            className="quick-booking"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!time) return;
+              const target = showtimes.find((s) => String(s.id) === String(time));
+              if (target) {
+                if (new Date(target.startsAt).getTime() <= Date.now()) {
+                  retryShowtimes();
+                  alert("Suất chiếu đã bắt đầu. Vui lòng chọn một suất chiếu khác.");
+                  return;
+                }
+                setSeatModalShowtimeId(target.id);
+              } else {
+                previewBooking(e);
+              }
+            }}
+          >
             <label className="booking-field">
               <span className="booking-label">
                 <Clapperboard size={14} />
@@ -1050,6 +1067,14 @@ export default function Home({ onNavigate, selectedMovieIdFromParent }) {
         <Modal title={modal.title} onClose={() => setModal(null)}>
           {modal.content}
         </Modal>
+      )}
+
+      {/* SƠ ĐỒ CHỌN & GIỮ GHẾ (TV3) */}
+      {seatModalShowtimeId && (
+        <SeatSelectionModal
+          showtimeId={seatModalShowtimeId}
+          onClose={() => setSeatModalShowtimeId(null)}
+        />
       )}
     </>
   );

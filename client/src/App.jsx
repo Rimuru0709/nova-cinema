@@ -2,63 +2,13 @@ import { useState, useEffect } from "react";
 import Home from "./home/home.jsx";
 import MovieList from "./movies/MovieList.jsx";
 import MovieDetail from "./movies/MovieDetail.jsx";
-import AuthPage from "./auth/AuthPage.jsx";
-import ProfilePage from "./profile/ProfilePage.jsx";
-import AdminAccounts from "./profile/AdminAccounts.jsx";
-import ComboPage from "./combo/ComboPage.jsx";
-import CheckoutPage from "./checkout/CheckoutPage.jsx";
-import ConfirmationPage from "./confirmation/ConfirmationPage.jsx";
-import TicketsPage from "./tickets/TicketsPage.jsx";
-import AdminPage from "./admin/AdminPage.jsx";
-import AdminAccess from "./admin/AdminAccess.jsx";
+import ShowtimesPage from "./showtimes/ShowtimesPage.jsx";
+import SeatSelectionModal from "./components/SeatSelectionModal.jsx";
 
 // Phân tích URL hash để xác định trang và ID phim tương ứng
 function getPageAndMovieFromHash() {
   const hash = window.location.hash || "";
   const lower = hash.toLowerCase();
-  if (lower === "#admin" || lower === "#admin/") {
-    return { page: "admin", movieId: "" };
-  }
-  if (lower === "#xac-nhan-dat-ve") {
-    return { page: "confirmation", movieId: "" };
-  }
-  if (
-    lower.startsWith("#chi-tiet-ve") ||
-    lower === "#ve-cua-toi" ||
-    lower === "#lich-su-dat-ve" ||
-    lower === "#my-tickets"
-  ) {
-    const parts = hash.split("/");
-    const orderCode = parts.length > 1 ? decodeURIComponent(parts[1]) : "";
-    return { page: "tickets", movieId: "", orderCode };
-  }
-  if (lower === "#thanh-toan" || lower === "#xem-lai-combo") {
-    return { page: "checkout", movieId: "" };
-  }
-  if (lower === "#chon-combo") {
-    return { page: "combo", movieId: "" };
-  }
-
-  if (lower === "#quan-ly-tai-khoan") {
-    return { page: "admin-accounts", movieId: "" };
-  }
-
-  if (lower === "#tai-khoan") {
-  return { page: "profile", movieId: "" };
-}
-
-  // Trang đăng nhập / đăng ký
-  if (
-    lower === "#dang-nhap" ||
-    lower === "#dang-ky" ||
-    lower === "#login" ||
-    lower === "#register"
-  ) {
-    return {
-      page: "auth",
-      movieId: "",
-    };
-  }
 
   // Chi tiết phim chỉ khi có hash chi tiết hoặc phim/:id
   if (
@@ -82,10 +32,24 @@ function getPageAndMovieFromHash() {
     return { page: "movies", movieId: "" };
   }
 
+  // Trang Lịch Chiếu Phim Đẳng Cấp Thượng Lưu (Ảnh 2)
+  if (
+    lower === "#lich-chieu" ||
+    lower === "#showtimes" ||
+    lower === "#lich-chieu-phim" ||
+    lower === "#dat-ve"
+  ) {
+    return { page: "showtimes", movieId: "" };
+  }
+
+  // Màn hình Chọn Ghế & Giữ Ghế (Ảnh 3)
+  if (lower === "#chon-ghe" || lower === "#seat-selection") {
+    return { page: "seat-selection", movieId: "" };
+  }
+
   if (
     lower === "#trang-chu" ||
     lower === "#home" ||
-    lower === "#dat-ve" ||
     lower === "#uu-dai" ||
     lower === "#trai-nghiem" ||
     lower === "#lien-he"
@@ -93,7 +57,7 @@ function getPageAndMovieFromHash() {
     return { page: "home", movieId: "" };
   }
 
-  // Mặc định ban đầu hiển thị Trang chủ (hoặc trang chi tiết nếu có hash)
+  // Mặc định ban đầu hiển thị Trang chủ
   return { page: "home", movieId: "" };
 }
 
@@ -102,7 +66,7 @@ function App() {
   const [currentPage, setCurrentPage] = useState(initial.page);
   const [selectedMovieId, setSelectedMovieId] = useState(initial.movieId || "dune-2");
   const [selectedMovieData, setSelectedMovieData] = useState(null);
-  const [selectedOrderCode, setSelectedOrderCode] = useState(initial.orderCode || "");
+  const [selectedShowtimeData, setSelectedShowtimeData] = useState(null);
 
   // Lắng nghe sự kiện hashchange của trình duyệt
   useEffect(() => {
@@ -112,9 +76,6 @@ function App() {
       if (state.movieId) {
         setSelectedMovieId(state.movieId);
         setSelectedMovieData(null);
-      }
-      if (state.orderCode !== undefined) {
-        setSelectedOrderCode(state.orderCode);
       }
     }
 
@@ -143,94 +104,92 @@ function App() {
       window.location.hash = `#chi-tiet/${id}`;
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else if (page === "movies" || page === "movie-list" || page === "catalog") {
-      // Khi click vào thanh Phim, chuyển sang trang Danh sách phim
       setCurrentPage("movies");
       window.location.hash = "#phim";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (page === "showtimes" || page === "lich-chieu") {
+      setCurrentPage("showtimes");
+      window.location.hash = "#lich-chieu";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (page === "seat-selection") {
+      if (target && typeof target === "object") {
+        setSelectedShowtimeData(target);
+      }
+      setCurrentPage("seat-selection");
+      window.location.hash = "#chon-ghe";
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       setCurrentPage("home");
       window.location.hash = target || "#trang-chu";
-      if (!target || target === "#trang-chu") {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      } else {
-        setTimeout(() => {
-          const el = document.querySelector(target);
-          if (el) {
-            el.scrollIntoView({ behavior: "smooth", block: "start" });
-          }
-        }, 120);
-      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }
 
-  // Khi người dùng bấm "Đặt vé ngay" hoặc chọn suất từ trang chi tiết
-  function handleSelectMovieAndBook(movie) {
-    setSelectedMovieId(movie.id || "dune-2");
-    setCurrentPage("home");
-    window.location.hash = "#dat-ve";
-    setTimeout(() => {
-      const el = document.querySelector("#dat-ve");
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-    }, 120);
+  // Khi người dùng bấm chọn một suất chiếu từ bất kỳ màn hình nào
+  function handleSelectShowtime(showtime) {
+    setSelectedShowtimeData(showtime);
+    setCurrentPage("seat-selection");
+    window.location.hash = "#chon-ghe";
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  if (currentPage === "admin-accounts") {
-    return <AdminAccess>{() => <AdminAccounts />}</AdminAccess>;
+  // Màn hình 3: Chọn Ghế & Giữ Ghế (Ảnh 3)
+  if (currentPage === "seat-selection") {
+    return (
+      <SeatSelectionModal
+        showtimeId={selectedShowtimeData?.id || 1}
+        showtimeData={selectedShowtimeData}
+        onClose={() => handleNavigate("showtimes")}
+        onBookingSuccess={() => { }}
+        onNavigate={handleNavigate}
+      />
+    );
   }
 
-  if (currentPage === "profile") {
-  return <ProfilePage onNavigate={handleNavigate} />;
-}
-
-  // Hiển thị trang đăng nhập / đăng ký
-  if (currentPage === "auth") {
-    return <AuthPage onNavigate={handleNavigate} />;
+  // Màn hình 2: Lịch Chiếu Phim Đẳng Cấp Thượng Lưu (Ảnh 2)
+  if (currentPage === "showtimes") {
+    return (
+      <ShowtimesPage
+        onNavigate={handleNavigate}
+        onSelectShowtime={handleSelectShowtime}
+      />
+    );
   }
 
-  if (currentPage === "admin") {
-    return <AdminAccess>{(session) => <AdminPage {...session} />}</AdminAccess>;
-  }
-  if (currentPage === "confirmation") {
-    return <ConfirmationPage />;
-  }
-  if (currentPage === "tickets") {
-    return <TicketsPage targetOrderCode={selectedOrderCode} />;
-  }
-  if (currentPage === "checkout") {
-    return <CheckoutPage />;
-  }
-  if (currentPage === "combo") {
-    return <ComboPage />;
-  }
-
+  // Màn hình 1: Chi Tiết Phim (Ảnh 1)
   if (currentPage === "movie-detail") {
     return (
       <MovieDetail
         movieId={selectedMovieId}
         initialMovie={selectedMovieData}
         onNavigate={handleNavigate}
-        onSelectMovieAndBook={handleSelectMovieAndBook}
+        onSelectShowtime={handleSelectShowtime}
       />
     );
   }
 
+  // Danh Sách Phim
   if (currentPage === "movies") {
     return (
       <MovieList
         onNavigate={handleNavigate}
-        onSelectMovieAndBook={handleSelectMovieAndBook}
+        onSelectShowtime={handleSelectShowtime}
       />
     );
   }
 
+  // Trang Chủ
   return (
     <Home
       onNavigate={handleNavigate}
       selectedMovieIdFromParent={selectedMovieId}
+      onSelectShowtime={handleSelectShowtime}
     />
   );
+bd0698c (Tính năng lịch chiếu và Chọn suất chiếu, chọn ghế)
+    />
+  );
+main
 }
 
 export default App;
