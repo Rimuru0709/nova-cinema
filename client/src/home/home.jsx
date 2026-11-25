@@ -22,15 +22,6 @@ import {
   Mail,
   CreditCard,
   Check,
-<<<<<<< HEAD
-=======
-  Tag,
-  BadgeCheck,
-  CheckCircle2,
-  Wallet,
-  QrCode,
-  Volume2,
->>>>>>> bd0698c (Tính năng lịch chiếu và Chọn suất chiếu, chọn ghế)
 } from "lucide-react";
 
 import useHome from "./useHome.jsx";
@@ -167,17 +158,6 @@ export default function Home() {
     showMembership,
   } = useHome();
 
-<<<<<<< HEAD
-=======
-  const [seatModalShowtimeId, setSeatModalShowtimeId] = useState(null);
-
-  useEffect(() => {
-    if (selectedMovieIdFromParent) {
-      setSelectedMovieId(selectedMovieIdFromParent);
-    }
-  }, [selectedMovieIdFromParent, setSelectedMovieId]);
-
->>>>>>> bd0698c (Tính năng lịch chiếu và Chọn suất chiếu, chọn ghế)
   return (
     <>
       {/* HEADER */}
