@@ -55,7 +55,7 @@ npm run dev
 
 Nếu cổng backend 5000 đang được sử dụng, đổi `PORT` trong `server/.env` và `API_PROXY_TARGET` trong `client/.env` cho khớp (xem `client/.env.example`). Dùng URL Local Vite in ra nếu cổng 5173 bận. Khi đổi cổng frontend và gọi API trực tiếp, cập nhật `CLIENT_URL` tương ứng.
 
-Lựa chọn khác: nếu tài khoản trong `server/.env` có quyền tạo database/bảng, có thể chạy `npm run db:import` thay cho bước nhập bằng Workbench. Tài khoản ứng dụng riêng chỉ đọc/ghi dữ liệu không có quyền nhập schema.
+Nhập schema bằng Workbench như bước 1. Với máy mới, chạy `npm --prefix server run db:auth` sau khi cấu hình để bổ sung bảng phiên và các trường tài khoản theo script đăng nhập. Nếu tài khoản ứng dụng không có quyền DDL, dùng tài khoản có quyền phù hợp để thiết lập database.
 
 ## API hiện có
 
@@ -69,13 +69,13 @@ Lựa chọn khác: nếu tài khoản trong `server/.env` có quyền tạo dat
 | `/api/showtimes?movieId=dune&cinemaId=1&date=YYYY-MM-DD` | Các suất chưa bắt đầu của phim/rạp/ngày |
 | `/api/products` | Bắp nước/combo; có thể lọc `category=popcorn`, `drink`, `combo` |
 
-Trang chủ lấy phim, rạp và lịch chiếu từ database qua API. Nếu MySQL/API lỗi, trang hiển thị thông báo và nút thử lại; không âm thầm thay bằng danh sách mẫu trong React.
+Trang chủ gọi API phim/rạp/lịch chiếu; `useHome.jsx` hiện còn danh sách dự phòng khi API lỗi. Các màn TV4 dùng MySQL và hiển thị lỗi khi không lấy được dữ liệu, không thay đơn tài khoản bằng đơn mẫu.
 
 ## Gửi cho các thành viên
 
 Gửi source code cùng file `database/nova_cinema.sql` và hướng dẫn này. Mỗi người làm lại các bước 1–3 bằng tài khoản MySQL riêng. Nên giữ `schema.sql` và `seed.sql` trong Git để cùng theo dõi thay đổi cấu trúc/dữ liệu mẫu. Khi sửa cấu trúc sau này, nhóm cần thống nhất và thêm script cập nhật, không tự tạo bộ bảng trùng chức năng.
 
-Phần hiện tại chuẩn bị nền dữ liệu và API đọc để nhóm phát triển tiếp. Các nghiệp vụ đăng nhập, giữ ghế 3 phút, chốt ghế đồng thời, thanh toán và phát hành QR **chưa được triển khai**. Chi tiết bảng và trách nhiệm triển khai nằm trong [database/README.md](database/README.md).
+Đã nối đăng nhập, giữ ghế 3 phút, combo, thanh toán mô phỏng, xác nhận đơn, vé QR và lịch sử vào MySQL. Admin TV4 gồm AD01 doanh thu, AD05 thêm/sửa/ngừng bán bắp nước và AD06 giao dịch. Xem [hướng dẫn sử dụng và kiểm tra TV4](client/README.md). Chi tiết bảng ở [database/README.md](database/README.md). Thanh toán thật, gửi email và quét soát vé chưa triển khai; không có chức năng xuất PDF.
 
 ## Kiểm tra source
 

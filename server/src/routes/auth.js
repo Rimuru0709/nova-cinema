@@ -23,7 +23,7 @@ const cookieOptions = {
     httpOnly: true,
     sameSite: "strict",
     secure: process.env.NODE_ENV === "production",
-    path: "/api/auth",
+    path: "/api",
 };
 
 const oauthProviders = {
@@ -392,6 +392,7 @@ function oauthCallback(key) {
             }
             const result = await createOAuthSession(key, claims, suggestedName);
             if (result.error) return oauthReturn(res, origin, result.error);
+            res.clearCookie(COOKIE_NAME, { ...cookieOptions, path: "/api/auth" });
             res.cookie(COOKIE_NAME, result.token, { ...cookieOptions, secure: origin.protocol === "https:" });
             return oauthReturn(res, origin, undefined, result.role);
         } catch (error) {
@@ -505,6 +506,7 @@ router.post("/login", async (req, res) => {
     );
     if (!session.affectedRows) return fail(res, 401, "Tài khoản hoặc mật khẩu không đúng.");
 
+    res.clearCookie(COOKIE_NAME, { ...cookieOptions, path: "/api/auth" });
     res.cookie(COOKIE_NAME, token, {
         ...cookieOptions,
         ...(remember === true ? { maxAge: duration * 1000 } : {}),
@@ -517,7 +519,7 @@ router.post("/login", async (req, res) => {
     });
 });
 
-async function requireSession(req, res, next) {
+export async function requireSession(req, res, next) {
     const token = readToken(req);
 
     if (!token) {
@@ -537,6 +539,7 @@ async function requireSession(req, res, next) {
 
     if (!users[0]) {
         res.clearCookie(COOKIE_NAME, cookieOptions);
+        res.clearCookie(COOKIE_NAME, { ...cookieOptions, path: "/api/auth" });
         return fail(res, 401, "Phiên đăng nhập không còn hiệu lực.");
     }
 
@@ -545,7 +548,7 @@ async function requireSession(req, res, next) {
     next();
 }
 
-function requireAdmin(_req, res, next) {
+export function requireAdmin(_req, res, next) {
     if (res.locals.account.role !== "admin") {
         return fail(res, 403, "Bạn cần quyền quản trị viên để truy cập chức năng này.");
     }
@@ -662,6 +665,7 @@ router.patch("/me", requireSession, async (req, res) => {
         if (!result.affectedRows) {
             await connection.rollback();
             res.clearCookie(COOKIE_NAME, cookieOptions);
+        res.clearCookie(COOKIE_NAME, { ...cookieOptions, path: "/api/auth" });
             return fail(res, 401, "Phiên đăng nhập không còn hiệu lực.");
         }
 
@@ -730,6 +734,7 @@ router.patch("/password", requireSession, async (req, res) => {
         if (!result.affectedRows) {
             await connection.rollback();
             res.clearCookie(COOKIE_NAME, cookieOptions);
+        res.clearCookie(COOKIE_NAME, { ...cookieOptions, path: "/api/auth" });
             return fail(res, 401, "Phiên đã thay đổi. Vui lòng đăng nhập lại.");
         }
         await connection.execute("DELETE FROM auth_sessions WHERE user_id = ?", [account.id]);
@@ -742,6 +747,7 @@ router.patch("/password", requireSession, async (req, res) => {
     }
 
     res.clearCookie(COOKIE_NAME, cookieOptions);
+        res.clearCookie(COOKIE_NAME, { ...cookieOptions, path: "/api/auth" });
     return res.json({ success: true, message: "Đã đổi mật khẩu. Hãy đăng nhập lại bằng mật khẩu mới." });
 });
 
@@ -756,6 +762,7 @@ router.post("/logout", async (req, res) => {
     }
 
     res.clearCookie(COOKIE_NAME, cookieOptions);
+        res.clearCookie(COOKIE_NAME, { ...cookieOptions, path: "/api/auth" });
     return res.json({ success: true, message: "Đã đăng xuất." });
 });
 

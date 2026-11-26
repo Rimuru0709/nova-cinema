@@ -5,7 +5,8 @@ import { holdSeats as holdService, releaseHold as releaseService, getHoldDetails
  */
 export async function holdSeats(req, res) {
     try {
-        const { showtimeId, seatIds, userId } = req.body;
+        const { showtimeId, seatIds } = req.body;
+        const userId = res.locals.account.id;
 
         if (!showtimeId || !Array.isArray(seatIds) || seatIds.length === 0) {
             return res.status(400).json({
@@ -35,7 +36,8 @@ export async function holdSeats(req, res) {
  */
 export async function releaseHold(req, res) {
     try {
-        const { holdId, userId } = req.body;
+        const { holdId } = req.body;
+        const userId = res.locals.account.id;
 
         if (!holdId) {
             return res.status(400).json({
@@ -65,7 +67,7 @@ export async function releaseHold(req, res) {
 export async function getHoldStatus(req, res) {
     try {
         const { id } = req.params;
-        const result = await getHoldDetails(id);
+        const result = await getHoldDetails(id, res.locals.account.id);
 
         res.json({
             success: true,

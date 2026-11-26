@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useMemo, useEffect, useRef } from "react";
 import {
   Home,
@@ -29,7 +30,6 @@ import {
   QrCode,
   BadgeCheck,
   Play,
-  Share2,
 } from "lucide-react";
 
 import {
@@ -176,7 +176,6 @@ export default function MovieList({ onNavigate, onSelectMovieAndBook }) {
   }, [statusTab, searchQuery, sortOption, formatFilter, genreFilter, ageFilter, pageSize]);
 
   // Phân trang
-  const totalPages = Math.max(1, Math.ceil(filteredMovies.length / pageSize));
   const paginatedMovies = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return filteredMovies.slice(start, start + pageSize);

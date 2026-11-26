@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import SeatSelectionModal from "../components/SeatSelectionModal.jsx";
+
 
 import {
   Menu,
@@ -22,10 +22,8 @@ import {
   Mail,
   CreditCard,
   Check,
-  Sparkles,
   ShieldCheck,
   Tag,
-  ExternalLink,
   BadgeCheck,
   CheckCircle2,
   Wallet,
@@ -121,7 +119,7 @@ function Modal({ title, children, onClose }) {
 }
 
 // Giao diện trang chủ
-export default function Home({ onNavigate, selectedMovieIdFromParent }) {
+export default function Home({ onNavigate, onSelectShowtime, selectedMovieIdFromParent }) {
   const [isAdmin, setIsAdmin] = useState(false);
   useEffect(() => {
     let controller;
@@ -465,7 +463,7 @@ export default function Home({ onNavigate, selectedMovieIdFromParent }) {
                   alert("Suất chiếu đã bắt đầu. Vui lòng chọn một suất chiếu khác.");
                   return;
                 }
-                setSeatModalShowtimeId(target.id);
+                onSelectShowtime?.(target);
               } else {
                 previewBooking(e);
               }
@@ -1069,13 +1067,7 @@ export default function Home({ onNavigate, selectedMovieIdFromParent }) {
         </Modal>
       )}
 
-      {/* SƠ ĐỒ CHỌN & GIỮ GHẾ (TV3) */}
-      {seatModalShowtimeId && (
-        <SeatSelectionModal
-          showtimeId={seatModalShowtimeId}
-          onClose={() => setSeatModalShowtimeId(null)}
-        />
-      )}
+
     </>
   );
 }

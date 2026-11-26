@@ -3,6 +3,10 @@ import express from 'express';
 import cors from 'cors';
 import pool, { testConnection } from './src/config/db.js';
 import authRoutes from "./src/routes/auth.js";
+import showtimeRoutes from "./src/routes/showtimeRoutes.js";
+import bookingRoutes from "./src/routes/bookingRoutes.js";
+import adminRoutes from "./src/routes/adminRoutes.js";
+import { cleanExpiredHolds } from "./src/services/seatHoldService.js";
 
 
 const app = express();
@@ -15,6 +19,9 @@ app.use(cors({
 
 app.use(express.json());
 app.use("/api/auth", authRoutes);
+app.use("/api/showtimes", showtimeRoutes);
+app.use("/api/bookings", bookingRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Helper chuẩn hóa dữ liệu phim trả về cho frontend
 function mapMovie(row) {
@@ -125,19 +132,6 @@ app.get('/api/movies/:id', async (req, res) => {
     }
 });
 
-// Kiểm tra server
-app.get('/api/health', (req, res) => {
-    res.json({
-        success: true,
-        message: 'Server Nova Cinema đang hoạt động.'
-    });
-});
-
-// Khởi động server
-app.listen(PORT, () => {
-    console.log(`Server đang chạy tại http://localhost:${PORT}`);
-});
-
 // 5. Danh sách rạp
 app.get('/api/cinemas', async (req, res) => {
     try {
@@ -146,63 +140,6 @@ app.get('/api/cinemas', async (req, res) => {
         );
         res.json({ success: true, data: cinemas });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-});
-
-// 6. Lấy lịch chiếu theo phim, rạp và ngày
-app.get('/api/showtimes', async (req, res) => {
-    try {
-        const { movieId, cinemaId, date } = req.query;
-        if (!movieId || !cinemaId || !date) {
-            return res.status(400).json({ success: false, message: 'Vui lòng cung cấp movieId, cinemaId và date.' });
-        }
-
-        const query = `
-            SELECT 
-                s.id,
-                s.movie_id,
-                s.room_id,
-                s.starts_at,
-                s.ends_at,
-                s.base_price,
-                s.format,
-                c.name AS cinema_name,
-                r.name AS room_name
-            FROM showtimes s
-            JOIN rooms r ON s.room_id = r.id
-            JOIN cinemas c ON r.cinema_id = c.id
-            WHERE s.movie_id = ?
-              AND c.id = ?
-              AND DATE(s.starts_at) = ?
-              AND s.status = 'scheduled'
-              AND s.starts_at > NOW()
-            ORDER BY s.starts_at ASC
-        `;
-
-        const [rows] = await pool.query(query, [movieId, cinemaId, date]);
-
-        const data = rows.map(row => {
-            const startsAt = new Date(row.starts_at);
-            const hours = String(startsAt.getHours()).padStart(2, '0');
-            const minutes = String(startsAt.getMinutes()).padStart(2, '0');
-
-            return {
-                id: row.id,
-                movieId: row.movie_id,
-                cinemaName: row.cinema_name,
-                roomName: row.room_name,
-                format: row.format,
-                startsAt: row.starts_at,
-                date: date,
-                time: `${hours}:${minutes}`,
-                price: Number(row.base_price)
-            };
-        });
-
-        res.json({ success: true, data });
-    } catch (error) {
-        console.error('Error fetching showtimes:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 });
@@ -237,6 +174,16 @@ app.get('/api/products', async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 });
+
+// Expired holds are also cleaned before every seat/checkout request.
+let expiryRunning = false;
+setInterval(async () => {
+    if (expiryRunning) return;
+    expiryRunning = true;
+    try { await cleanExpiredHolds(); }
+    catch (error) { console.error('Không thể dọn phiên giữ ghế:', error.message); }
+    finally { expiryRunning = false; }
+}, 10000).unref();
 
 // Khởi động server
 app.listen(PORT, async () => {

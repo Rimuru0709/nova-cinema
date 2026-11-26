@@ -5,6 +5,7 @@ import { DEMO_KEY, canSimulatePayment, checkoutTotals, createDemoBooking, remain
 import { CONFIRMATION_KEY, sameBooking, saveSimulation, validConfirmation } from '../confirmation/confirmation.js';
 import '../combo/combo.css';
 import './checkout.css';
+import { bookingApi, holdContext } from './bookingApi.js';
 
 const money = (value) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
 const methods = [
@@ -30,6 +31,11 @@ export default function CheckoutPage() {
     return state;
   });
   const { booking, demo } = context;
+  const real = !demo;
+  const holdId = booking?.holdId;
+  const [holdReady, setHoldReady] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const paymentAttempt = useRef(null);
   const [completed, setCompleted] = useState(() => validConfirmation(readSession(CONFIRMATION_KEY, null)));
   const submitted = useRef(false);
   const [cart] = useState(() => cleanCart(readSession(CART_KEY, {})));
@@ -42,6 +48,22 @@ export default function CheckoutPage() {
   const [notice, setNotice] = useState('');
   const [contact, setContact] = useState({ name: '', email: '', phone: '' });
   const resultRef = useRef(null);
+  useEffect(() => {
+    if (!real || !holdId) return;
+    const controller = new AbortController();
+    Promise.all([bookingApi('/holds/' + holdId, null, controller.signal), fetch('/api/auth/me', { signal: controller.signal, cache: 'no-store' }).then(r => r.json())])
+      .then(([hold, account]) => {
+        if (controller.signal.aborted) return;
+        if (!account.success) throw new Error('Vui lòng đăng nhập lại.');
+        if (hold.status === 'converted') { window.location.assign('#ve-cua-toi'); return; }
+        if (hold.status !== 'active') throw new Error('Phiên giữ ghế đã hết hạn hoặc bị hủy. Vui lòng chọn lại ghế.');
+        const next = holdContext(hold);
+        setContext({ booking: next, demo: false }); writeSession(BOOKING_KEY, next);
+        setContact({ name: account.user.fullName, email: account.user.email, phone: account.user.phone || '' });
+        setHoldReady(true);
+      }).catch(err => { if (!controller.signal.aborted) setNotice(err.message); });
+    return () => controller.abort();
+  }, [real, holdId]);
 
   useEffect(() => {
     window.scrollTo({ top: 0 });
@@ -65,7 +87,7 @@ export default function CheckoutPage() {
     return () => { disposed = true; clearTimeout(timeout); controller.abort(); };
   }, [attempt]);
   useEffect(() => {
-    if (result?.status === 'success') window.location.hash = '#xac-nhan-dat-ve';
+    if (result?.status === 'success') window.location.assign('#xac-nhan-dat-ve');
     else if (result) resultRef.current?.focus();
   }, [result]);
 
@@ -74,7 +96,7 @@ export default function CheckoutPage() {
   const seconds = booking ? remainingSeconds(booking.expiresAt, now) : 0;
   const expired = seconds === 0;
   const alreadyCompleted = sameBooking(completed, booking);
-  const allowed = canSimulatePayment({ booking, ready, missing: totals.missing, now }) && !alreadyCompleted;
+  const allowed = canSimulatePayment({ booking, ready, missing: totals.missing, now }) && !alreadyCompleted && !busy && (!real || holdReady);
   const activeMethod = methods.find((item) => item.id === method);
 
   function restartDemo() {
@@ -82,9 +104,9 @@ export default function CheckoutPage() {
     if (!writeSession(DEMO_KEY, next)) { setNotice('Trình duyệt chưa cho phép lưu phiên thử. Hãy bật bộ nhớ trang web rồi thử lại.'); return; }
     setContext({ booking: next, demo: true }); setNow(Date.now()); setResult(null); setNotice(''); setCompleted(null); submitted.current = false;
   }
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    if (submitted.current || alreadyCompleted) return;
+    if (submitted.current || alreadyCompleted || busy || (real && !holdReady)) return;
     // Read the actual deadline on submit; the rendered timer may be one tick behind.
     // eslint-disable-next-line react-hooks/purity -- This event handler runs after user input, not during render.
     const currentTime = Date.now();
@@ -92,6 +114,22 @@ export default function CheckoutPage() {
     if (result?.status === 'success') return;
     if (!contact.name.trim()) { setNotice('Vui lòng nhập họ tên người nhận vé.'); return; }
     setNotice('');
+    if (real) {
+      submitted.current = true; setBusy(true);
+      try {
+        const order = await bookingApi('/confirm', { holdId: booking.holdId, items: totals.items.map(i => ({ productId: Number(i.id), quantity: i.quantity })), expectedTotal: totals.total });
+        if (order.status === 'paid') { window.location.assign('#xac-nhan-dat-ve/' + order.bookingCode); return; }
+        const signature = JSON.stringify([order.bookingId, method, scenario, totals.total]);
+        if (paymentAttempt.current?.signature !== signature) paymentAttempt.current = { signature, requestId: crypto.randomUUID() };
+        const payment = await bookingApi('/' + order.bookingId + '/pay', { method, outcome: scenario, requestId: paymentAttempt.current.requestId, expectedTotal: totals.total });
+        if (payment.status === 'paid') {
+          sessionStorage.removeItem(BOOKING_KEY); sessionStorage.removeItem(CART_KEY);
+          window.location.assign('#xac-nhan-dat-ve/' + payment.bookingCode);
+        } else { paymentAttempt.current = null; setResult({ status: 'failure', method: activeMethod.title, total: totals.total }); }
+      } catch (err) { setNotice(err.message); }
+      finally { submitted.current = false; setBusy(false); }
+      return;
+    }
     if (scenario === 'success') {
       try {
         const confirmation = saveSimulation({ outcome: scenario, booking, demoBooking: demo,
@@ -117,7 +155,7 @@ export default function CheckoutPage() {
       <div className="combo-title-row"><div><p className="combo-eyebrow"><Ticket size={15} /> HOÀN TẤT TRẢI NGHIỆM ĐIỆN ẢNH</p><h1>Xác nhận & <span>Thanh toán vé</span></h1><p className="combo-subtitle">Kiểm tra thông tin và lựa chọn phương thức thanh toán.</p></div>
         <ol className="combo-steps" aria-label="Các bước đặt vé"><li>01 <span>Chọn ghế</span></li><li>02 <span>Chọn combo</span></li><li className="active" aria-current="step">03 <span>Thanh toán</span></li><li>04 <span>Nhận vé</span></li></ol>
       </div>
-      <div className="checkout-demo-note"><FlaskConical size={20} /><div><strong>{demo ? 'Dữ liệu phim và ghế mẫu — thử giao diện TV4' : 'Thông tin đặt vé từ bước chọn ghế'}</strong><p>{demo ? 'Phim, suất chiếu và ghế dưới đây là dữ liệu mẫu; bắp nước lấy từ lựa chọn của bạn.' : 'Thời gian còn lại dựa trên hạn giữ ghế được bàn giao.'} Thanh toán hiện chỉ mô phỏng, chưa thu tiền hoặc phát hành vé.</p></div></div>
+      <div className="checkout-demo-note"><FlaskConical size={20} /><div><strong>{demo ? 'Dữ liệu phim và ghế mẫu — thử giao diện TV4' : 'Thông tin đặt vé từ bước chọn ghế'}</strong><p>{demo ? 'Phim, suất chiếu và ghế dưới đây là dữ liệu mẫu; bắp nước lấy từ lựa chọn của bạn.' : 'Thời gian còn lại dựa trên hạn giữ ghế được bàn giao.'} {demo ? 'Thanh toán mẫu chỉ lưu trong trình duyệt.' : 'Thanh toán mô phỏng, không thu tiền. Đơn hàng và vé QR được lưu vào tài khoản của bạn.'}</p></div></div>
       {!booking ? <section className="combo-empty" role="alert"><Info size={30} /><h2>Thông tin giữ ghế chưa hợp lệ</h2><p>Vui lòng quay lại chọn suất và ghế trước khi tiếp tục.</p><a className="combo-secondary" href="#dat-ve">Quay lại chọn suất</a></section> : <form id="checkout-form" onSubmit={handleSubmit} className="checkout-layout">
         <div className="checkout-content">
           <section className={`checkout-hold combo-panel ${expired ? 'is-expired' : ''}`} aria-label="Thời gian giữ ghế">
@@ -131,10 +169,10 @@ export default function CheckoutPage() {
             <div className="checkout-combos"><div className="checkout-card-heading"><h3><Popcorn size={17} /> Bắp nước đi kèm</h3><a href="#chon-combo">Chỉnh sửa <ChevronRight size={13} /></a></div>{totals.items.map((item) => <div key={item.id} className="checkout-line"><span>{item.quantity} × {item.name}<small>{money(item.price)} / phần</small></span><strong>{money(item.subtotal)}</strong></div>)}{Object.keys(cart).length === 0 && <p className="checkout-muted">Không kèm bắp nước.</p>}{!ready && <p className="checkout-muted" role="status">Đang kiểm tra giá các món đã chọn…</p>}</div>
           </section>
           <section className="checkout-card combo-panel"><div className="checkout-card-heading"><h2><Wallet size={18} /> Phương thức thanh toán</h2><span className="checkout-tag"><FlaskConical size={12} /> MÔ PHỎNG</span></div>
-            <fieldset className="checkout-methods" disabled={expired || alreadyCompleted}><legend className="checkout-sr-only">Chọn phương thức thanh toán</legend>{methods.map(({ id, title, detail, Icon, badge }) => <div className={`checkout-method ${method === id ? 'selected' : ''}`} key={id}><label><input type="radio" name="payment-method" value={id} checked={method === id} onChange={() => { setMethod(id); setResult(null); }} /><span className={`checkout-method-logo ${id}`}>{badge}</span><span><strong>{title}</strong><small>{detail}</small></span><Icon size={20} /></label>{method === id && <div className="checkout-method-info"><FlaskConical size={21} /><p>Chế độ thử nghiệm: chọn kết quả bên phải rồi bấm “Mô phỏng thanh toán”. Không cần quét QR, nhập thẻ hay chuyển tiền.</p></div>}</div>)}</fieldset>
+            <fieldset className="checkout-methods" disabled={busy || expired || alreadyCompleted}><legend className="checkout-sr-only">Chọn phương thức thanh toán</legend>{methods.map(({ id, title, detail, Icon, badge }) => <div className={`checkout-method ${method === id ? 'selected' : ''}`} key={id}><label><input type="radio" name="payment-method" value={id} checked={method === id} onChange={() => { setMethod(id); setResult(null); }} /><span className={`checkout-method-logo ${id}`}>{badge}</span><span><strong>{title}</strong><small>{detail}</small></span><Icon size={20} /></label>{method === id && <div className="checkout-method-info"><FlaskConical size={21} /><p>Chế độ thử nghiệm: chọn kết quả bên phải rồi bấm “Mô phỏng thanh toán”. Không cần quét QR, nhập thẻ hay chuyển tiền.</p></div>}</div>)}</fieldset>
           </section>
-          <section className="checkout-card combo-panel"><div className="checkout-card-heading"><h2><UserRound size={18} /> Thông tin người nhận vé</h2></div><p className="checkout-muted">Dùng thông tin mẫu để thử. Sau khi thành công, thông tin được lưu cùng xác nhận mẫu trong phiên trình duyệt; chưa gửi email hoặc SMS.</p>
-            <fieldset className="checkout-contact" disabled={expired || alreadyCompleted}><legend className="checkout-sr-only">Thông tin người nhận</legend><label>Họ và tên <span>*</span><input name="name" autoComplete="name" required maxLength={100} placeholder="Nguyễn Văn An" value={contact.name} onChange={(e) => setContact({ ...contact, name: e.target.value })} /></label><label>Số điện thoại<input name="phone" type="tel" autoComplete="tel" maxLength={20} placeholder="Không bắt buộc" value={contact.phone} onChange={(e) => setContact({ ...contact, phone: e.target.value })} /></label><label className="checkout-email">Email nhận vé <span>*</span><input name="email" type="email" autoComplete="email" required maxLength={254} placeholder="ban@example.com" value={contact.email} onChange={(e) => setContact({ ...contact, email: e.target.value })} /></label></fieldset>
+          <section className="checkout-card combo-panel"><div className="checkout-card-heading"><h2><UserRound size={18} /> Thông tin người nhận vé</h2></div><p className="checkout-muted">{real ? 'Vé được lưu vào tài khoản đang đăng nhập. Chưa gửi email hoặc SMS.' : 'Thông tin mẫu được lưu trong phiên trình duyệt; chưa gửi email hoặc SMS.'}</p>
+            <fieldset className="checkout-contact" disabled={real || expired || alreadyCompleted}><legend className="checkout-sr-only">Thông tin người nhận</legend><label>Họ và tên <span>*</span><input name="name" autoComplete="name" required maxLength={100} placeholder="Nguyễn Văn An" value={contact.name} onChange={(e) => setContact({ ...contact, name: e.target.value })} /></label><label>Số điện thoại<input name="phone" type="tel" autoComplete="tel" maxLength={20} placeholder="Không bắt buộc" value={contact.phone} onChange={(e) => setContact({ ...contact, phone: e.target.value })} /></label><label className="checkout-email">Email nhận vé <span>*</span><input name="email" type="email" autoComplete="email" required maxLength={254} placeholder="ban@example.com" value={contact.email} onChange={(e) => setContact({ ...contact, email: e.target.value })} /></label></fieldset>
           </section>
         </div>
         <aside className="checkout-sidebar"><section className="combo-summary combo-panel"><p className="combo-eyebrow">TÓM TẮT HÓA ĐƠN</p><h2>Chi phí đặt vé <ReceiptText size={22} /></h2><div className="checkout-invoice-movie"><Clapperboard size={28} /><div><strong>{booking.movieTitle || 'Phim đã chọn'}</strong><small>{showtime(booking.startsAt)}</small><small>{booking.cinemaName || 'Rạp đã chọn'}</small></div></div>
@@ -146,9 +184,9 @@ export default function CheckoutPage() {
           {catalog.status === 'ready' && totals.missing.length > 0 && <p className="checkout-error" role="alert">Có món không còn được bán. <a href="#chon-combo">Quay lại cập nhật combo</a> trước khi thanh toán.</p>}
           {notice && <p className="checkout-error" role="alert">{notice}</p>}
           {alreadyCompleted && <p className="checkout-completed" role="status">Phiên này đã xác nhận mô phỏng. <a href="#xac-nhan-dat-ve">Xem lại xác nhận đã lưu <ArrowRight size={14} /></a></p>}
-          <button className="combo-primary" type="submit" disabled={!allowed}><FlaskConical size={17} /> {alreadyCompleted ? 'Đã hoàn tất mô phỏng' : expired ? 'Đã hết thời gian' : 'Mô phỏng thanh toán'}{allowed && <ArrowRight size={17} />}</button><a href="#chon-combo" className="combo-back"><ArrowLeft size={14} /> Quay lại chọn combo</a><p className="combo-next-note checkout-payment-note">Không thu tiền • Chưa tạo đơn hoặc vé thật</p>
+          <button className="combo-primary" type="submit" disabled={!allowed}><FlaskConical size={17} /> {busy ? 'Đang xử lý…' : alreadyCompleted ? 'Đã hoàn tất mô phỏng' : expired ? 'Đã hết thời gian' : 'Mô phỏng thanh toán'}{allowed && <ArrowRight size={17} />}</button><a href="#chon-combo" className="combo-back"><ArrowLeft size={14} /> Quay lại chọn combo</a><p className="combo-next-note checkout-payment-note">{real ? 'Không thu tiền • Lưu đơn và vé trong tài khoản' : 'Không thu tiền • Dữ liệu mẫu trong trình duyệt'}</p>
         </section>
-        <section className="checkout-scenarios combo-panel"><h2><FlaskConical size={17} /> Thử kết quả thanh toán</h2><p>Chọn tình huống muốn kiểm tra:</p><fieldset disabled={expired || alreadyCompleted}><legend className="checkout-sr-only">Kết quả mô phỏng</legend><label><input type="radio" name="scenario" checked={scenario === 'success'} onChange={() => { setScenario('success'); setResult(null); }} /><CheckCircle2 size={16} /> Thành công</label><label><input type="radio" name="scenario" checked={scenario === 'failure'} onChange={() => { setScenario('failure'); setResult(null); }} /><XCircle size={16} /> Thất bại</label></fieldset><small>Hết giờ sẽ tự chặn thanh toán. {demo && 'Có thể tạo lại phiên mẫu sau khi hết giờ.'}</small></section>
+        <section className="checkout-scenarios combo-panel"><h2><FlaskConical size={17} /> Thử kết quả thanh toán</h2><p>Chọn tình huống muốn kiểm tra:</p><fieldset disabled={busy || expired || alreadyCompleted}><legend className="checkout-sr-only">Kết quả mô phỏng</legend><label><input type="radio" name="scenario" checked={scenario === 'success'} onChange={() => { setScenario('success'); setResult(null); }} /><CheckCircle2 size={16} /> Thành công</label><label><input type="radio" name="scenario" checked={scenario === 'failure'} onChange={() => { setScenario('failure'); setResult(null); }} /><XCircle size={16} /> Thất bại</label></fieldset><small>Hết giờ sẽ tự chặn thanh toán. {demo && 'Có thể tạo lại phiên mẫu sau khi hết giờ.'}</small></section>
         {result && <section className={`checkout-result combo-panel ${result.status}`} ref={resultRef} tabIndex={-1} role="status">{result.status === 'success' ? <CheckCircle2 size={28} /> : <XCircle size={28} />}<h2>{result.status === 'success' ? 'Mô phỏng thành công' : 'Mô phỏng thất bại'}</h2><p>{result.status === 'success' ? `${result.method} • ${money(result.total)}. Đây là kết quả thử nghiệm; chưa có giao dịch, đơn hàng hay vé thật.` : 'Giao dịch thử chưa hoàn tất. Bạn có thể chọn lại phương thức và thử lại trong thời gian còn lại.'}</p>{result.status === 'success' && <button type="button" className="combo-secondary" onClick={() => setResult(null)}>Thử tình huống khác</button>}</section>}
         </aside>
       </form>}

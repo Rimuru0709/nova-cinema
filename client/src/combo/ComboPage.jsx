@@ -77,7 +77,8 @@ export default function ComboPage({ review = false }) {
     });
   }
   function proceed(skip = false) {
-    if (booking && Date.parse(booking.expiresAt) <= Date.now()) { setNow(Date.now()); return; }
+    const currentTime = Date.now();
+    if (booking && Date.parse(booking.expiresAt) <= currentTime) { setNow(currentTime); return; }
     if (!skip && (!ready || missing)) return;
     const chosen = skip ? [] : lines;
     const productSubtotal = skip ? 0 : subtotal;
@@ -91,7 +92,7 @@ export default function ComboPage({ review = false }) {
       setNotice('Trình duyệt chưa cho phép lưu lựa chọn. Hãy bật bộ nhớ trang web rồi thử lại.'); return;
     }
     if (skip) setCart({});
-    window.location.hash = '#thanh-toan';
+    window.location.assign('#thanh-toan');
   }
 
   return <div className="combo-page">
@@ -110,7 +111,7 @@ export default function ComboPage({ review = false }) {
           : <><Info size={20} /><div><strong>Bạn đang xem trước thực đơn</strong><span>Chưa có ghế được giữ. Bước thanh toán sẽ dùng phim và ghế mẫu để bạn thử cùng combo đã chọn.</span></div><a href="#dat-ve">Chọn suất <ArrowRight size={15} /></a></>}
       </div>
       <div className="combo-layout"><section aria-label={review ? 'Xem lại món đã chọn' : 'Thực đơn bắp nước'}>
-        {review ? <div className="combo-review combo-panel"><span className="combo-review-icon"><Check size={28} /></span><p className="combo-eyebrow">LỰA CHỌN ĐÃ ĐƯỢC LƯU TRONG PHIÊN NÀY</p><h2>{count ? `${count} món cho buổi xem phim` : 'Tiếp tục không kèm bắp nước'}</h2><p>Bước thanh toán đang được phát triển. Đây là phần xem lại lựa chọn, chưa phải xác nhận đặt vé.</p>
+        {review ? <div className="combo-review combo-panel"><span className="combo-review-icon"><Check size={28} /></span><p className="combo-eyebrow">LỰA CHỌN ĐÃ ĐƯỢC LƯU TRONG PHIÊN NÀY</p><h2>{count ? `${count} món cho buổi xem phim` : 'Tiếp tục không kèm bắp nước'}</h2><p>Kiểm tra lựa chọn trước khi thanh toán. Đây chưa phải xác nhận đặt vé.</p>
           {lines.map((item) => <div className="combo-review-line" key={item.id}><span>{item.quantity} × {item.name}</span><strong>{currency(item.subtotal)}</strong></div>)}
           {!ready && <p role="status">{catalog.status === 'error' ? catalog.error : 'Đang kiểm tra lại giá sản phẩm…'}</p>}
           {missing && <p role="alert">Một số món không còn được bán. Quay lại thực đơn để cập nhật lựa chọn.</p>}

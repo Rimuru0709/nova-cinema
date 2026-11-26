@@ -1,19 +1,5 @@
 import pool from '../config/db.js';
 
-// Đảm bảo có ít nhất 1 tài khoản khách hàng mặc định để thỏa mãn khóa ngoại seat_holds.user_id
-export async function ensureDefaultUser(connection = null) {
-    const executor = connection || pool;
-    const [rows] = await executor.query('SELECT id FROM users LIMIT 1');
-    if (rows.length > 0) {
-        return rows[0].id;
-    }
-    const [result] = await executor.query(
-        `INSERT INTO users (full_name, email, phone, password_hash, role, status)
-         VALUES ('Khách Hàng NOVA', 'guest@novacinema.vn', '0901234567', 'no-password', 'user', 'active')`
-    );
-    return result.insertId;
-}
-
 /**
  * Tự động giải phóng các ghế đã hết hạn 3 phút (expires_at <= NOW()).
  * Cần update showtime_seats trước (set state = 'available', hold_id = NULL, held_until = NULL)
@@ -25,19 +11,14 @@ export async function cleanExpiredHolds() {
         connection = await pool.getConnection();
         await connection.beginTransaction();
 
-        // 1. Giải phóng các ghế đang ở trạng thái 'held' mà thời hạn held_until đã qua
-        const [releasedSeats] = await connection.query(
-            `UPDATE showtime_seats
-             SET state = 'available', hold_id = NULL, held_until = NULL
-             WHERE state = 'held' AND (held_until IS NULL OR held_until <= NOW())`
-        );
-
-        // 2. Chuyển trạng thái các lượt giữ ghế quá hạn thành 'expired'
-        const [expiredHolds] = await connection.query(
-            `UPDATE seat_holds
-             SET status = 'expired'
-             WHERE status = 'active' AND expires_at <= NOW()`
-        );
+        const [expired] = await connection.query("SELECT id FROM seat_holds WHERE status = 'active' AND expires_at <= NOW() ORDER BY id FOR UPDATE");
+        let releasedSeats = {affectedRows:0}, expiredHolds = {affectedRows:0};
+        if (expired.length) {
+          const ids = expired.map(row => row.id);
+          [releasedSeats] = await connection.query("UPDATE showtime_seats SET state='available',hold_id=NULL,held_until=NULL WHERE state='held' AND hold_id IN (?)", [ids]);
+          await connection.query("UPDATE bookings SET status='expired' WHERE hold_id IN (?) AND status IN ('pending','payment_failed')", [ids]);
+          [expiredHolds] = await connection.query("UPDATE seat_holds SET status='expired' WHERE id IN (?)", [ids]);
+        }
 
         await connection.commit();
         return {
@@ -47,7 +28,7 @@ export async function cleanExpiredHolds() {
     } catch (error) {
         if (connection) await connection.rollback();
         console.error('Lỗi khi dọn dẹp ghế hết hạn:', error);
-        return { error: error.message };
+        throw error;
     } finally {
         if (connection) connection.release();
     }
@@ -188,7 +169,7 @@ export async function getShowtimeSeats(showtimeId, currentUserId = null) {
  * Áp dụng Transaction và FOR UPDATE để ngăn ngừa trường hợp 2 khách hàng cùng giữ 1 ghế.
  */
 export async function holdSeats({ showtimeId, seatIds, userId = null }) {
-    if (!showtimeId || !Array.isArray(seatIds) || seatIds.length === 0) {
+    if (!Number.isSafeInteger(Number(showtimeId)) || Number(showtimeId) < 1 || !userId || !Array.isArray(seatIds) || seatIds.length === 0 || seatIds.length > 8 || seatIds.some(id => !Number.isSafeInteger(id) || id < 1) || new Set(seatIds).size !== seatIds.length) {
         const error = new Error('Vui lòng chọn ít nhất một ghế.');
         error.statusCode = 400;
         throw error;
@@ -273,7 +254,7 @@ export async function holdSeats({ showtimeId, seatIds, userId = null }) {
         }
 
         // 4. Lấy hoặc tạo user hợp lệ cho khóa ngoại
-        const targetUserId = userId || (await ensureDefaultUser(connection));
+        const targetUserId = userId;
 
         // 5. Tạo bản ghi seat_holds với thời hạn 3 phút
         const [holdInsert] = await connection.query(
@@ -373,14 +354,18 @@ export async function releaseHold({ holdId, userId = null }) {
         }
 
         const hold = holds[0];
+        if (String(hold.user_id) !== String(userId)) { const error = new Error('Không tìm thấy phiên giữ ghế.'); error.statusCode = 404; throw error; }
+        if (hold.status === 'converted') { const error = new Error('Không thể hủy phiên đã thanh toán.'); error.statusCode = 409; throw error; }
 
         // 2. Cập nhật các ghế trong showtime_seats về available trước
         await connection.query(
             `UPDATE showtime_seats
              SET state = 'available', hold_id = NULL, held_until = NULL
-             WHERE hold_id = ?`,
+             WHERE hold_id = ? AND state = 'held'`,
             [holdId]
         );
+
+        await connection.query("UPDATE bookings SET status='cancelled' WHERE hold_id=? AND status IN ('pending','payment_failed')", [holdId]);
 
         // 3. Đánh dấu hold là 'cancelled'
         await connection.query(
@@ -403,7 +388,7 @@ export async function releaseHold({ holdId, userId = null }) {
 /**
  * Lấy thông tin chi tiết một phiên giữ ghế kèm thời gian còn lại.
  */
-export async function getHoldDetails(holdId) {
+export async function getHoldDetails(holdId, userId) {
     await cleanExpiredHolds();
 
     const [rows] = await pool.query(
@@ -418,7 +403,7 @@ export async function getHoldDetails(holdId) {
             s.starts_at,
             s.format,
             s.base_price,
-            m.title AS movie_title,
+            m.title AS movie_title, m.poster_url, m.age_rating,
             c.name AS cinema_name,
             r.name AS room_name
         FROM seat_holds sh
@@ -426,8 +411,8 @@ export async function getHoldDetails(holdId) {
         JOIN movies m ON s.movie_id = m.id
         JOIN rooms r ON s.room_id = r.id
         JOIN cinemas c ON r.cinema_id = c.id
-        WHERE sh.id = ?`,
-        [holdId]
+        WHERE sh.id = ? AND sh.user_id = ?`,
+        [holdId, userId]
     );
 
     if (rows.length === 0) {
@@ -451,7 +436,7 @@ export async function getHoldDetails(holdId) {
         [holdId]
     );
 
-    const isExpired = hold.status === 'expired' || Number(hold.remaining_seconds) <= 0;
+    const isExpired = hold.status === 'expired' || (hold.status === 'active' && Number(hold.remaining_seconds) <= 0);
 
     return {
         holdId: hold.hold_id,
@@ -462,6 +447,7 @@ export async function getHoldDetails(holdId) {
         remainingSeconds: isExpired ? 0 : Number(hold.remaining_seconds),
         isExpired,
         movieTitle: hold.movie_title,
+        poster: hold.poster_url, ageRating: hold.age_rating,
         cinemaName: hold.cinema_name,
         roomName: hold.room_name,
         startsAt: hold.starts_at,
