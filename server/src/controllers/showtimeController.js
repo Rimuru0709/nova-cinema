@@ -7,6 +7,7 @@ import { getShowtimeSeats as fetchSeatsService, cleanExpiredHolds } from '../ser
 export async function getShowtimes(req, res) {
     try {
         const { movieId, cinemaId, date, time } = req.query;
+        await cleanExpiredHolds();
 
         let query = `
             SELECT 
@@ -79,7 +80,7 @@ export async function getShowtimes(req, res) {
             const startsAt = new Date(row.starts_at);
             const hours = String(startsAt.getHours()).padStart(2, '0');
             const minutes = String(startsAt.getMinutes()).padStart(2, '0');
-            const dateStr = startsAt.toISOString().slice(0, 10);
+            const dateStr = new Date(startsAt.getTime() + 7 * 3600000).toISOString().slice(0, 10);
 
             return {
                 id: row.id,
@@ -201,7 +202,7 @@ export async function getShowtimeById(req, res) {
 export async function getShowtimeSeats(req, res) {
     try {
         const { id } = req.params;
-        const { userId } = req.query;
+        const userId = null;
         const result = await fetchSeatsService(id, userId);
         res.json({ success: true, data: result });
     } catch (error) {

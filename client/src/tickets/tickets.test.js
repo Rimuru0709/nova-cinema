@@ -79,3 +79,32 @@ test('ticketHref and ticketQrPayload generate scannable demo URL and payload', (
   // Invalid receipt throws error
   assert.throws(() => ticketQrPayload(null), /Vé không hợp lệ/);
 });
+
+
+test('Database ticket QR round-trips without exposing contact data', async () => {
+  const { default: QRCode } = await import('qrcode');
+  const { default: jsQR } = await import('jsqr');
+  const receipt = { version:2, source:'database', status:'paid', ticketCode:'NOVA-11111111-2222-4333-8444-555555555555', contact:{ email:'private@example.invalid' } };
+  const payload = ticketQrPayload(receipt);
+  assert.equal(payload, receipt.ticketCode);
+  assert.throws(() => ticketQrPayload({...receipt,status:'pending'}));
+  const qr = QRCode.create(payload), scale=8, border=4, width=(qr.modules.size+border*2)*scale;
+  const pixels = new Uint8ClampedArray(width*width*4).fill(255);
+  for(let y=0;y<qr.modules.size;y++) for(let x=0;x<qr.modules.size;x++) if(qr.modules.get(y,x)) {
+    for(let dy=0;dy<scale;dy++) for(let dx=0;dx<scale;dx++) {
+      const at=(((y+border)*scale+dy)*width+(x+border)*scale+dx)*4;
+      pixels[at]=11;pixels[at+1]=19;pixels[at+2]=43;
+    }
+  }
+  assert.equal(jsQR(pixels,width,width)?.data,payload);
+});
+
+test('Pending, failed, expired and cancelled orders do not appear as upcoming tickets', () => {
+  const original = createReceipt(now);
+  const orders = ['paid', 'pending', 'payment_failed', 'expired', 'cancelled'].map(status => ({ ...original, source: 'database', status }));
+  assert.equal(filterTickets(orders, { tab: 'upcoming', now }).length, 1);
+  for (const status of ['pending', 'payment_failed', 'expired', 'cancelled']) {
+    assert.equal(filterTickets(orders, { tab: status, now })[0].status, status);
+    assert.throws(() => ticketQrPayload(orders.find(order => order.status === status)));
+  }
+});

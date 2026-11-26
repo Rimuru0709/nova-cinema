@@ -42,13 +42,13 @@ Các script không dùng `DROP`, `TRUNCATE`, `REPLACE`, không xóa dữ liệu 
 
 Tiền dùng `DECIMAL(12,0)`, đơn vị VND; thời gian `DATETIME` dùng giờ Việt Nam (`+07:00`). Backend cũng phải cấu hình múi giờ tương ứng. Giá trong `booking_seats` và `booking_items` là giá được lưu lúc mua, không lấy giá hiện tại để tính lại đơn cũ. QR dùng một token duy nhất cho cả đơn; việc sinh mã QR thuộc phần ứng dụng.
 
-## Giữ ghế và thanh toán cần triển khai tiếp
+## Giữ ghế và thanh toán
 
 - `showtime_seats` có khóa chính `(showtime_id, seat_id)`, nên mỗi ghế chỉ có một dòng lưu chủ sở hữu hiện tại trong mỗi suất. Các khóa ngoại ghép bảo đảm ghế thuộc đúng phòng, hold/đơn thuộc đúng suất và hold có đúng thời hạn.
 - `seat_holds` lưu người giữ và `expires_at`. Khi triển khai, TV3 đặt hạn **3 phút**; TV4 dùng lại hạn đó, không bắt đầu lại đồng hồ tại trang thanh toán.
 - `available`: không có hold/đơn; `held`: có `hold_id`, `held_until`; `booked`: có `booking_id`. `booking_seats` là lịch sử, nên một ghế có thể xuất hiện trong nhiều đơn cũ đã thất bại/hết hạn.
 - Đơn `paid` yêu cầu `paid_at` và `qr_token`; các trạng thái chưa thanh toán không có các giá trị này. Một đơn chỉ có tối đa một giao dịch `succeeded`; `transaction_code` phải duy nhất để tránh xử lý cùng giao dịch hai lần.
-- **Schema chưa triển khai cơ chế đặt vé.** Backend cần transaction và khóa hàng khi kiểm tra/giữ/chốt/nhả ghế, xử lý hết hạn và thanh toán lặp; không chỉ kiểm tra ghế ở frontend. Cần xác thực quyền sở hữu đơn và tính lại giá ở backend.
+- **Luồng backend đã nối TV3 → TV4:** giữ ghế 3 phút, tính giá tại máy chủ, kiểm tra chủ sở hữu và thanh toán mô phỏng bằng transaction/khóa hàng. Ghế chỉ chuyển sang booked sau thanh toán thành công. Các phiên hết hạn được dọn khi đọc/ghi và mỗi 10 giây khi server chạy. Schema vẫn cần được import trước.
 - Việc chặn lịch chiếu chồng nhau, không đặt suất đã bắt đầu và đối chiếu số tiền giao dịch cũng cần được kiểm tra trong nghiệp vụ backend. Các khóa/check ở đây không thay thế các kiểm tra đó.
 
 Khi sửa `schema.sql` hoặc `seed.sql`, cập nhật lại `nova_cinema.sql` bằng cách nối hai file theo đúng thứ tự để bản gửi nhóm khớp với nguồn.

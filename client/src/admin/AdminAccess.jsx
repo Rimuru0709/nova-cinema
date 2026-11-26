@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ShieldCheck } from 'lucide-react';
 import './admin.css';
 
@@ -7,7 +7,7 @@ export default function AdminAccess({ children }) {
   const [attempt, setAttempt] = useState(0);
   const [loggingOut, setLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState('');
-  const logoutPending = useRef(false);
+  const [logoutPending, setLogoutPending] = useState(false);
 
   useEffect(() => {
     let controller;
@@ -21,7 +21,7 @@ export default function AdminAccess({ children }) {
           credentials: 'same-origin', cache: 'no-store', signal: request.signal,
         });
         const data = await response.json().catch(() => null);
-        if (stopped || request.signal.aborted || logoutPending.current) return;
+        if (stopped || request.signal.aborted || logoutPending) return;
         if (response.status === 401) {
           setSession({ status: 'loading' });
           window.location.replace('#dang-nhap');
@@ -33,7 +33,7 @@ export default function AdminAccess({ children }) {
           setSession({ status: 'error' });
         }
       } catch {
-        if (!stopped && !request.signal.aborted && !logoutPending.current) setSession({ status: 'error' });
+        if (!stopped && !request.signal.aborted && !logoutPending) setSession({ status: 'error' });
       }
     }
     checkSession();
@@ -45,11 +45,11 @@ export default function AdminAccess({ children }) {
       window.clearInterval(timer);
       window.removeEventListener('focus', checkSession);
     };
-  }, [attempt]);
+  }, [attempt, logoutPending]);
 
   async function logout() {
-    if (logoutPending.current) return;
-    logoutPending.current = true;
+    if (logoutPending) return;
+    setLogoutPending(true);
     setLoggingOut(true);
     setLogoutError('');
     try {
@@ -61,7 +61,7 @@ export default function AdminAccess({ children }) {
     } catch {
       setLogoutError('Chưa đăng xuất được. Vui lòng thử lại.');
     } finally {
-      logoutPending.current = false;
+      setLogoutPending(false);
       setLoggingOut(false);
     }
   }

@@ -22,7 +22,7 @@ test('Đăng nhập, phân quyền admin và hủy phiên bằng MySQL', async (
       headers: { ...(body && { 'Content-Type': 'application/json' }), ...(cookie && { Cookie: cookie }) },
       ...(body && { body: JSON.stringify(body) }),
     });
-    return { status: response.status, body: await response.json(), cookie: response.headers.get('set-cookie')?.split(';')[0] };
+    return { status: response.status, body: await response.json(), cookie: response.headers.getSetCookie().find(value => /^nova_session=[^;]/.test(value))?.split(';')[0] };
   }
   try {
     assert.equal((await request('/admin/session')).status, 401);

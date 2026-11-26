@@ -20,7 +20,6 @@ import {
   Film,
   Sparkles,
   X,
-  BadgeCheck,
   SquarePen,
 } from "lucide-react";
 
@@ -33,7 +32,7 @@ import {
 } from "./movieDetailData.js";
 import "../home/home.css";
 import "./movieDetail.css";
-import SeatSelectionModal from "../components/SeatSelectionModal.jsx";
+
 import SiteHeader from "../components/SiteHeader.jsx";
 import SiteFooter from "../components/SiteFooter.jsx";
 
@@ -84,7 +83,7 @@ function mapMovieIdToDb(id) {
   return s;
 }
 
-export default function MovieDetail({ movieId = "dune-2", onNavigate, onSelectMovieAndBook, initialMovie = null }) {
+export default function MovieDetail({ movieId = "dune-2", onNavigate, onSelectShowtime, initialMovie = null }) {
   // Tìm thông tin phim hiện tại (mặc định lấy Dune 2 nếu không tìm thấy)
   const currentMovie = useMemo(() => {
     const targetId = String(movieId || "").toLowerCase().trim();
@@ -160,11 +159,6 @@ export default function MovieDetail({ movieId = "dune-2", onNavigate, onSelectMo
   // Danh sách đánh giá của phim hiện tại
   const [reviewsList, setReviewsList] = useState(() => getReviewsForMovie(currentMovie));
 
-  // Cập nhật reviews khi đổi phim
-  useEffect(() => {
-    setReviewsList(getReviewsForMovie(currentMovie));
-  }, [currentMovie]);
-
   // States tương tác
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(() =>
@@ -176,12 +170,11 @@ export default function MovieDetail({ movieId = "dune-2", onNavigate, onSelectMo
   const [selectedTimeFilter, setSelectedTimeFilter] = useState("all");
   const [dbShowtimes, setDbShowtimes] = useState([]);
   const [showtimesLoading, setShowtimesLoading] = useState(false);
-  const [seatModalShowtimeId, setSeatModalShowtimeId] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState({
     id: null,
     hallName: "Phòng 1 (2D)",
     slotTime: "10:30",
-    price: "90.000 đ",
+    price: "—",
     priceNum: 90000,
     startsAt: null,
   });
@@ -193,6 +186,7 @@ export default function MovieDetail({ movieId = "dune-2", onNavigate, onSelectMo
       const dbId = mapMovieIdToDb(currentMovie.id);
       const cinemaId = selectedCinema === "landmark" ? "1" : selectedCinema === "westlake" ? "2" : selectedCinema === "vincom" ? "3" : selectedCinema;
       setShowtimesLoading(true);
+      setSelectedSlot({ id: null, price: "—" });
       try {
         const queryParams = new URLSearchParams({
           movieId: dbId,
@@ -222,7 +216,7 @@ export default function MovieDetail({ movieId = "dune-2", onNavigate, onSelectMo
               id: null,
               hallName: "Chưa có suất",
               slotTime: "--:--",
-              price: "90.000 đ",
+              price: "—",
               priceNum: 90000,
               startsAt: null,
             });
@@ -278,12 +272,6 @@ export default function MovieDetail({ movieId = "dune-2", onNavigate, onSelectMo
     return Object.values(roomsMap);
   }, [dbShowtimes]);
 
-  // Reset trạng thái yêu thích & cuộn lên đầu trang khi đổi phim
-  useEffect(() => {
-    setIsLiked(false);
-    setLikeCount(Math.round(20000 + (currentMovie.rating || 9) * 1200));
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [currentMovie.id]);
 
   // Modal & Toast states
   const [showVideoModal, setShowVideoModal] = useState(false);
@@ -352,10 +340,7 @@ export default function MovieDetail({ movieId = "dune-2", onNavigate, onSelectMo
       triggerToast("⚠️ Suất chiếu này đã bắt đầu. Vui lòng chọn suất khác.");
       return;
     }
-    if (onSelectMovieAndBook) {
-      onSelectMovieAndBook(selectedSlot);
-    }
-    setSeatModalShowtimeId(selectedSlot.id);
+    onSelectShowtime?.(selectedSlot);
   }
 
   // Xử lý gửi nhận xét mới
@@ -899,7 +884,7 @@ export default function MovieDetail({ movieId = "dune-2", onNavigate, onSelectMo
                               triggerToast("⚠️ Suất chiếu đã bắt đầu. Vui lòng chọn suất khác.");
                               return;
                             }
-                            setSeatModalShowtimeId(slot.id);
+                            onSelectShowtime?.(slot);
                           }}
                         >
                           <div className="detail-slot-top">
@@ -1313,16 +1298,7 @@ export default function MovieDetail({ movieId = "dune-2", onNavigate, onSelectMo
           </div>
         </div>
       )}
-      {/* MODAL SƠ ĐỒ CHỌN & GIỮ GHẾ (TV3) */}
-      {seatModalShowtimeId && (
-        <SeatSelectionModal
-          showtimeId={seatModalShowtimeId}
-          onClose={() => setSeatModalShowtimeId(null)}
-          onBookingSuccess={(b) => {
-            triggerToast(`🎉 Đặt vé ${b.bookingCode} thành công!`);
-          }}
-        />
-      )}
+
     </div>
   );
 }
